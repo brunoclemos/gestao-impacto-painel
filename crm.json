@@ -1,5 +1,398 @@
 {
-  "_nota": "MQL/SQL/vendas por funil puxados do Kommo (snapshot). Fallback enquanto a aba 'crm' da planilha nao existir. Quando o Apps Script gravar a aba 'crm', ela tem prioridade.",
+  "_nota": "MQL/SQL/Vendas do Kommo por DATA DE ENTRADA do lead (created_at, fuso BR -3). Fallback enquanto a aba crm da planilha nao existir; quando o Apps Script gravar a aba crm (com colunas date,funil,...), ela tem prioridade.",
   "_atualizado": "2026-06-08",
-  "HOME": { "mql": 38, "sql": 30, "vendas": 5, "faturamento": 0 }
+  "rows": [
+    {
+      "funil": "HOME",
+      "date": "2026-04-13",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-04-14",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-04-15",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-04-16",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-04-17",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-04-19",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-04-20",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-04-21",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-04-22",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-04-23",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-04-25",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-04-26",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-04-28",
+      "mql": 1,
+      "sql": 1,
+      "vendas": 1,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-04-29",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-04-30",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-05",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-06",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-07",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-08",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-10",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-11",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-12",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-13",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-14",
+      "mql": 1,
+      "sql": 1,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-15",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-16",
+      "mql": 1,
+      "sql": 1,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-17",
+      "mql": 1,
+      "sql": 1,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-18",
+      "mql": 3,
+      "sql": 3,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-19",
+      "mql": 2,
+      "sql": 1,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-20",
+      "mql": 4,
+      "sql": 3,
+      "vendas": 1,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-21",
+      "mql": 7,
+      "sql": 5,
+      "vendas": 2,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-22",
+      "mql": 1,
+      "sql": 1,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-23",
+      "mql": 2,
+      "sql": 2,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-24",
+      "mql": 1,
+      "sql": 1,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-25",
+      "mql": 2,
+      "sql": 1,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-26",
+      "mql": 2,
+      "sql": 2,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-27",
+      "mql": 1,
+      "sql": 1,
+      "vendas": 1,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-28",
+      "mql": 1,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-29",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-30",
+      "mql": 1,
+      "sql": 1,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-05-31",
+      "mql": 2,
+      "sql": 2,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-06-01",
+      "mql": 3,
+      "sql": 2,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-06-02",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-06-03",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-06-04",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-06-05",
+      "mql": 1,
+      "sql": 1,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-06-06",
+      "mql": 1,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-06-07",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    },
+    {
+      "funil": "HOME",
+      "date": "2026-06-08",
+      "mql": 0,
+      "sql": 0,
+      "vendas": 0,
+      "faturamento": 0.0
+    }
+  ]
 }

@@ -25,13 +25,15 @@ Abas que ainda não existirem são **ignoradas** — então dá pra começar só
 `Action Landing Page View`, `Action Leads`.
 > O painel acha as colunas pelo nome (tolera variações). CPM/CPC/CTR são recalculados a partir de gasto/impressões/cliques.
 
-### Aba `crm` (opcional) — MQL, SQL e vendas por funil
-Preenchida automaticamente pelos Apps Scripts (`integracoes/`). Colunas:
-`funil`, `mql`, `sql`, `vendas`, `faturamento`. Enquanto não existir, o painel mostra `—` nessas etapas.
+### Aba `crm` — MQL, SQL e vendas por funil **e por data**
+Preenchida automaticamente pelo Apps Script do Kommo (`integracoes/kommo.gs`), uma linha por (funil × data de
+entrada do lead). Assim o painel filtra MQL/SQL/Vendas pelo mesmo período do tráfego. Colunas:
+`date`, `funil`, `mql`, `sql`, `vendas`, `faturamento`. Enquanto a aba não existir, o painel usa o `crm.json` do repo.
 
-| funil | mql | sql | vendas | faturamento |
-|---|---|---|---|---|
-| HOME | 30 | 17 | 7 | 13979 |
+| date | funil | mql | sql | vendas | faturamento |
+|---|---|---|---|---|---|
+| 2026-05-21 | HOME | 7 | 5 | 2 | 0 |
+| 2026-06-06 | HOME | 1 | 0 | 0 | 0 |
 
 ---
 

@@ -55,7 +55,7 @@
 <!-- ===================== SIDEBAR ===================== -->
 <aside class="w-full lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:left-0" style="background:var(--bg2);border-right:1px solid var(--line)">
   <div class="px-5 py-5 border-b" style="border-color:var(--line)">
-    <img id="gi-logo" src="assets/logo.png" alt="Gestão de Impacto" class="h-9 w-auto max-w-full object-contain"
+    <img id="gi-logo" src="assets/logo.svg" alt="Gestão de Impacto" class="h-6 sm:h-7 w-auto max-w-full object-contain"
          onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='flex';">
     <div id="logo-fallback" class="items-center gap-2" style="display:none">
       <span class="text-[15px] font-medium tracking-[.12em] text-white/90">GESTÃO DE</span>
@@ -100,7 +100,7 @@
   </header>
 
   <div id="date-warn" class="hidden mx-5 sm:mx-7 mt-5 px-4 py-2.5 rounded-xl text-xs" style="background:rgba(251,191,36,.10);border:1px solid rgba(251,191,36,.28);color:#FCD34D">
-    Filtro de data ativo: <strong>MQL, SQL, Vendas, ROAS e custos por etapa</strong> aparecem só em “Todo o período” (o CRM é um total, não tem data por etapa).
+    Filtro de data ativo — tráfego e CRM (MQL/SQL/Vendas) considerados pela <strong>data de entrada do lead</strong> no período.
   </div>
 
   <div id="empty-state" class="hidden m-7 card p-10 text-center" style="color:var(--muted)">
@@ -286,36 +286,34 @@ function parseTrafego(rows){
   }
   return out;
 }
-function parseCrm(rows){
-  const map={}; if(!rows||rows.length<2) return map;
+function parseCrmRows(rows){
+  const out=[]; if(!rows||rows.length<2) return out;
   const h=rows[0].map(x=>stripAccents(x).toLowerCase().trim());
-  const iF=h.indexOf('funil'),iM=h.indexOf('mql'),iS=h.indexOf('sql'),iV=h.indexOf('vendas'),iR=h.findIndex(x=>x.includes('fatur'));
-  if(iF<0) return map;
+  const iF=h.indexOf('funil'), iD=h.indexOf('date')>=0?h.indexOf('date'):h.indexOf('data');
+  const iM=h.indexOf('mql'),iS=h.indexOf('sql'),iV=h.indexOf('vendas'),iR=h.findIndex(x=>x.includes('fatur'));
+  if(iF<0) return out;
   for(let i=1;i<rows.length;i++){ const r=rows[i]; const k=normFunil(r[iF]); if(!k) continue;
-    const e=map[k]||(map[k]={mql:0,sql:0,vendas:0,faturamento:0});
-    if(iM>=0)e.mql+=parseNum(r[iM]); if(iS>=0)e.sql+=parseNum(r[iS]); if(iV>=0)e.vendas+=parseNum(r[iV]); if(iR>=0)e.faturamento+=parseNum(r[iR]); }
-  return map;
+    out.push({funil:k,date:iD>=0?toISO(r[iD]):'',mql:iM>=0?parseNum(r[iM]):0,sql:iS>=0?parseNum(r[iS]):0,vendas:iV>=0?parseNum(r[iV]):0,faturamento:iR>=0?parseNum(r[iR]):0}); }
+  return out;
 }
 async function loadData(){
   isDemo=false; DATA={}; LOADED=[];
   if(!CONFIG.SHEET_ID){ isDemo=true; demo(); return; }
   const results=await Promise.all(CONFIG.FUNIS.map(f=>fetchTab(f.tab).catch(()=>null)));
-  const crmSheet=parseCrm(await fetchTab(CONFIG.TAB_CRM).catch(()=>null));
-  let crmJson={}; try{ const r=await fetch(CONFIG.CRM_FALLBACK+'?_='+new Date().getTime(),{cache:'no-store'}); if(r.ok) crmJson=await r.json(); }catch(e){ console.warn('crm.json não carregou:',e); }
+  const crmSheetRows=parseCrmRows(await fetchTab(CONFIG.TAB_CRM).catch(()=>null));
+  let crmJsonRows=[]; try{ const r=await fetch(CONFIG.CRM_FALLBACK+'?_='+new Date().getTime(),{cache:'no-store'}); if(r.ok){ const j=await r.json(); crmJsonRows=Array.isArray(j)?j:(j.rows||[]); } }catch(e){ console.warn('crm.json não carregou:',e); }
+  const crmFor=key=>{ const s=crmSheetRows.filter(r=>r.funil===key); const src=s.length?s:crmJsonRows.filter(r=>normFunil(r.funil)===key);
+    return src.map(r=>({date:toISO(r.date),mql:+r.mql||0,sql:+r.sql||0,vendas:+r.vendas||0,faturamento:+r.faturamento||0})); };
   CONFIG.FUNIS.forEach((f,i)=>{
     const traf=parseTrafego(results[i]);
-    if(traf.length){
-      const c = crmSheet[f.key] || crmJson[f.key] || {mql:0,sql:0,vendas:0,faturamento:0};
-      DATA[f.key]={traf,crm:{mql:+c.mql||0,sql:+c.sql||0,vendas:+c.vendas||0,faturamento:+c.faturamento||0}};
-      LOADED.push(f.key);
-    }
+    if(traf.length){ DATA[f.key]={traf,crmRows:crmFor(f.key)}; LOADED.push(f.key); }
   });
   if(!LOADED.length){ isDemo=true; demo(); }
 }
 function demo(){
   const days=['2026-06-03','2026-06-04','2026-06-05','2026-06-06','2026-06-07'];
   const mk=(s,im,cl,lp,ld,c)=>days.map((d,i)=>({date:d,campaign:c,adset:'',ad:'',perma:'',spend:+(s*[0.9,1,1.1,1.05,0.95][i]).toFixed(2),impressions:im,clicks:cl,lpv:lp,leads:ld}));
-  DATA={HOME:{traf:[...mk(900,60000,1200,520,8,'HOME - LEAD QUENTE'),...mk(600,40000,800,360,5,'HOME - LEAD FRIO')],crm:{mql:38,sql:30,vendas:5,faturamento:0}}};
+  DATA={HOME:{traf:[...mk(900,60000,1200,520,8,'HOME - LEAD QUENTE'),...mk(600,40000,800,360,5,'HOME - LEAD FRIO')],crmRows:[{date:'2026-06-05',mql:2,sql:1,vendas:0,faturamento:0},{date:'2026-06-06',mql:1,sql:1,vendas:1,faturamento:0}]}};
   LOADED=['HOME'];
 }
 
@@ -324,10 +322,11 @@ function inDate(d){ return (!dateFrom||d>=dateFrom) && (!dateTo||d<=dateTo); }
 function trafRows(funil){ const ks=funil==='ALL'?LOADED:[funil]; return ks.filter(k=>DATA[k]).flatMap(k=>DATA[k].traf.filter(r=>inDate(r.date))); }
 function crmOf(funil){
   const z={mql:0,sql:0,vendas:0,faturamento:0};
-  if(dfActive()) return z; // CRM é total (snapshot): não mistura com janela de data
-  const get=k=>(DATA[k]&&DATA[k].crm)||z;
-  if(funil!=='ALL') return get(funil);
-  return LOADED.reduce((a,k)=>{const c=get(k);return {mql:a.mql+c.mql,sql:a.sql+c.sql,vendas:a.vendas+c.vendas,faturamento:a.faturamento+c.faturamento};},{...z});
+  const ks=funil==='ALL'?LOADED:[funil];
+  return ks.filter(k=>DATA[k]&&DATA[k].crmRows).reduce((a,k)=>{
+    DATA[k].crmRows.forEach(r=>{ if(inDate(r.date)){ a.mql+=r.mql; a.sql+=r.sql; a.vendas+=r.vendas; a.faturamento+=r.faturamento; } });
+    return a;
+  },{...z});
 }
 function stats(funil){
   const t=trafRows(funil).reduce((a,r)=>({spend:a.spend+r.spend,impressions:a.impressions+r.impressions,clicks:a.clicks+r.clicks,lpv:a.lpv+r.lpv,leads:a.leads+r.leads}),{spend:0,impressions:0,clicks:0,lpv:0,leads:0});
@@ -371,13 +370,12 @@ function renderKPIs(){
   set('kpi-clicks',fmtInt(s.clicks)); set('kpi-ctr',showN(s.ctr,fmtPct)); set('kpi-cpc',showN(s.cpc,fmtBRL));
   set('kpi-lpv',fmtInt(s.lpv)); set('kpi-cplpv',showN(s.cplpv,fmtBRL));
   set('kpi-leads',fmtInt(s.leads)); set('kpi-cpl',showN(s.cpl,fmtBRL));
-  set('kpi-mql',dfActive()?'—':(s.mql?fmtInt(s.mql):'—')); set('kpi-cmql',showN(s.cmql,fmtPct));
-  set('kpi-sql',dfActive()?'—':(s.sql?fmtInt(s.sql):'—')); set('kpi-csql',showN(s.csql,fmtPct));
-  set('kpi-sales',dfActive()?'—':(s.vendas?fmtInt(s.vendas):'—')); set('kpi-cpa',showN(s.cpa,fmtBRL));
-  // ROAS: 3 estados (filtro ativo / sem faturamento / ok)
+  set('kpi-mql',s.mql?fmtInt(s.mql):'—'); set('kpi-cmql',showN(s.cmql,fmtPct));
+  set('kpi-sql',s.sql?fmtInt(s.sql):'—'); set('kpi-csql',showN(s.csql,fmtPct));
+  set('kpi-sales',s.vendas?fmtInt(s.vendas):'—'); set('kpi-cpa',showN(s.cpa,fmtBRL));
+  // ROAS: 2 estados (sem faturamento / ok)
   const roasV=document.getElementById('kpi-roas'), roasSub=document.getElementById('kpi-roas-sub');
-  if(dfActive()){ roasV.textContent='—'; roasSub.innerHTML='Disponível em “Todo o período”'; }
-  else if(!s.faturamento){ roasV.textContent='—'; roasSub.innerHTML='Aguardando valor de venda no Kommo'; }
+  if(!s.faturamento){ roasV.textContent='—'; roasSub.innerHTML='Aguardando valor de venda no Kommo'; }
   else { roasV.textContent=s.roas.toFixed(2).replace('.',',')+'x'; roasSub.innerHTML='Faturamento <span class="font-semibold text-white">'+fmtBRL(s.faturamento)+'</span>'; }
 }
 
@@ -390,9 +388,9 @@ function renderFunnel(){
     {label:'Cliques no link',val:s.clicks,cost:s.cpc,costL:'CPC',conv:s.ctr,convL:'CTR'},
     {label:'Landing Page',val:s.lpv,cost:s.cplpv,costL:'Custo/LPV',conv:rate(s.lpv,s.clicks),convL:'Cliques→LPV'},
     {label:'Leads',val:s.leads,cost:s.cpl,costL:'CPL',conv:rate(s.leads,s.lpv),convL:'LPV→Lead'},
-    {label:'MQL',val:dfActive()?0:s.mql,cost:s.cpmql,costL:'Custo/MQL',conv:s.cmql,convL:'Conv. MQL'},
-    {label:'SQL',val:dfActive()?0:s.sql,cost:s.cpsql,costL:'Custo/SQL',conv:s.csql,convL:'Conv. SQL'},
-    {label:'Vendas',val:dfActive()?0:s.vendas,cost:s.cpa,costL:'CPA',conv:rate(s.vendas,s.sql),convL:'SQL→Venda'},
+    {label:'MQL',val:s.mql,cost:s.cpmql,costL:'Custo/MQL',conv:s.cmql,convL:'Conv. MQL'},
+    {label:'SQL',val:s.sql,cost:s.cpsql,costL:'Custo/SQL',conv:s.csql,convL:'Conv. SQL'},
+    {label:'Vendas',val:s.vendas,cost:s.cpa,costL:'CPA',conv:rate(s.vendas,s.sql),convL:'SQL→Venda'},
   ];
   const max=Math.max(...steps.map(x=>x.val||0),1);
   document.getElementById('funnel-steps').innerHTML = steps.map((st,i)=>{
@@ -408,9 +406,8 @@ function renderFunnel(){
   }).join('');
   // nota do CRM
   const note=document.getElementById('crm-note');
-  if(dfActive()) note.innerHTML='MQL/SQL/Vendas ocultos com filtro de data (CRM é total). Veja em “Todo o período”.';
-  else if(s.mql||s.sql||s.vendas) note.innerHTML='MQL/SQL/Vendas são totais do CRM (Kommo) — não filtram por data.';
-  else note.innerHTML='MQL/SQL/Vendas: conecte o Kommo (aba <code>crm</code>) para preencher.';
+  if(s.mql||s.sql||s.vendas) note.innerHTML='MQL/SQL/Vendas do Kommo · por data de entrada do lead (acompanham o filtro).';
+  else note.innerHTML='MQL/SQL/Vendas: conecte o Kommo (aba <code>crm</code> com colunas date · funil · mql · sql · vendas).';
 }
 
 function destroy(n){if(charts[n]){charts[n].destroy();charts[n]=null;}}
