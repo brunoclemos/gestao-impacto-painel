@@ -4,7 +4,7 @@ Dashboard de tráfego pago + funil de vendas, **por funil** (HOME · GINE · TRE
 Single-file (`index.html`), tema escuro na identidade da GI. Lê os dados direto de uma **planilha Google** (CSV). Sem build, sem backend.
 
 **Planilha conectada:** `1ZNOVea2o74XIKfJuCN60ycfWkD83mEexXoZUYXdzjL4`
-**Ao vivo:** _(GitHub Pages ativa quando você autorizar)_
+**Ao vivo:** https://brunoclemos.github.io/gestao-impacto-painel/
 
 ---
 
