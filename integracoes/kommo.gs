@@ -1,42 +1,43 @@
 /**
- * Integração Kommo → Planilha (aba "crm") — MQL, SQL e (opcional) vendas por funil.
+ * Integração Kommo → Planilha (aba "crm") — MQL, SQL e vendas por funil.
  * ---------------------------------------------------------------------------------
  * 🔐 Propriedades do script (⚙ Configurações do projeto):
  *      KOMMO_SUBDOMAIN = leonardogestaoimpactocom
  *      KOMMO_TOKEN     = (token de longa duração)
  *
- * Conta: leonardogestaoimpactocom.kommo.com (id 34771623)
+ * Cada funil pode somar VÁRIOS pipelines. Para cada pipeline, liste os status_id que
+ * contam como MQL, SQL e Venda. Rode "listarPipelinesKommo" para ver os IDs.
  *
- * Como definir as etapas de cada funil:
- *   1) Rode "listarPipelinesKommo" → Registros (Ctrl+Enter): mostra pipelines e o ID de cada etapa.
- *   2) Em MAPA_KOMMO, liste os IDs das etapas que contam como MQL, como SQL e como Venda.
- *   3) Rode "atualizarKommo" e agende (relógio → Diário).
+ * ▶ Rode "atualizarKommo" (e agende no relógio → Diário).
  */
 
 const ABA_CRM_K = 'crm';
 
-// ----------------------------------------------------------------------------------
-//  MAPA: para cada funil, quais ETAPAS (status_id) contam como MQL, SQL e Venda.
-//  HOME já vem pré-preenchido (pipeline "HOME NOVO" id 13684264) — ajuste se quiser.
-// ----------------------------------------------------------------------------------
+// HOME = soma de 4 pipelines (HOME NOVO + IA + Funil de Vendas + Campanha Forms).
 const MAPA_KOMMO = {
   HOME: {
-    pipelineId: 13684264, // "HOME NOVO"
-    // MQL = lead QUALIFICADO (passou por "AGENDADO QUALIFICADO" em diante). Exclui "não qualificado" e "desqualificado/perdido".
-    mqlStatus:   [105607012, 106485812, 106485816, 106485820, 106485824, 106485828, 106485832, 142],
-    //            AGENDADO QUALIF. · PARTICIPOU CALL · REAGENDOU · NOSHOW · NEGOCIANDO · VENDA FEITA · PROX TURMA · ganho
-    // SQL = lead que ENGAJOU com vendas (participou da call / negociando / vendeu).
-    sqlStatus:   [106485812, 106485824, 106485828, 106485832, 142],
-    //            PARTICIPOU CALL · NEGOCIANDO · VENDA FEITA · PROX TURMA · ganho
-    // VENDA = "VENDA FEITA" + "Venda ganha" (142). Soma price = faturamento.
-    vendaStatus: [106485828, 142],
-    gravaVendas: true, // HOME fecha venda no CRM
+    gravaVendas: true, // grava vendas/faturamento (faturamento vem do "price" do lead no Kommo; 0 até preencherem)
+    pipelines: [
+      { id: 13684264, // HOME NOVO
+        mql:   [105607012, 106485812, 106485816, 106485820, 106485824, 106485828, 106485832, 142],
+        sql:   [106485812, 106485824, 106485828, 106485832, 142],
+        venda: [106485828, 142] },
+      { id: 13679504, // IA  (Meet agendado/realizado, Qualificado)
+        mql:   [105569528, 105661040, 105569248, 142],
+        sql:   [105661040, 105569248, 142],
+        venda: [142] },
+      { id: 11411643, // Funil de Vendas (genérico — só entrada/contato; conta venda ganha)
+        mql:   [142], sql: [142], venda: [142] },
+      { id: 13530196, // CAMPANHA FORMS (Oferta feita, Negociação)
+        mql:   [104390748, 104390752, 142],
+        sql:   [104390748, 104390752, 142],
+        venda: [142] },
+    ],
   },
-  // GINE:        { pipelineId: 0, mqlStatus:[], sqlStatus:[], vendaStatus:[142], gravaVendas:false }, // rode listarPipelinesKommo p/ achar
-  // TREINAMENTO: { pipelineId: 0, mqlStatus:[], sqlStatus:[], vendaStatus:[142], gravaVendas:true },
+  // GINE / TREINAMENTO: mapear quando definir os pipelines.
 };
 
-// ----------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 function _kbase() {
   const p = PropertiesService.getScriptProperties();
   const sub = p.getProperty('KOMMO_SUBDOMAIN'), tok = p.getProperty('KOMMO_TOKEN');
@@ -52,7 +53,7 @@ function _kget(path) {
   return JSON.parse(res.getContentText());
 }
 
-// 🔎 Liste pipelines e o ID de cada etapa (para montar as listas de MQL/SQL/Venda)
+// 🔎 Liste pipelines e o ID de cada etapa
 function listarPipelinesKommo() {
   const d = _kget('/leads/pipelines');
   ((d._embedded || {}).pipelines || []).forEach(p => {
@@ -62,33 +63,43 @@ function listarPipelinesKommo() {
   });
 }
 
-// ▶ Função principal — conta MQL/SQL/vendas por funil e grava na aba "crm"
+// conta leads de UM pipeline pelos conjuntos de status
+function _contaPipeline(cfg) {
+  const mql = new Set(cfg.mql || []), sql = new Set(cfg.sql || []), vend = new Set(cfg.venda || [142]);
+  let page = 1, M = 0, S = 0, V = 0, F = 0, L = 0;
+  while (page <= 100) {
+    const d = _kget('/leads?filter[pipeline_id]=' + cfg.id + '&limit=250&page=' + page);
+    const leads = ((d._embedded || {}).leads) || [];
+    if (!leads.length) break;
+    leads.forEach(l => {
+      const st = l.status_id; L++;
+      if (mql.has(st)) M++;
+      if (sql.has(st)) S++;
+      if (vend.has(st)) { V++; F += (l.price || 0); }
+    });
+    if (leads.length < 250) break;
+    page++;
+  }
+  return { leads: L, mql: M, sql: S, vendas: V, fat: F };
+}
+
+// ▶ Principal — soma os pipelines de cada funil e grava na aba "crm"
 function atualizarKommo() {
   const out = {};
   Object.keys(MAPA_KOMMO).forEach(funil => {
     const cfg = MAPA_KOMMO[funil];
-    const mqlS = new Set(cfg.mqlStatus || []), sqlS = new Set(cfg.sqlStatus || []), vS = new Set(cfg.vendaStatus || [142]);
-    let page = 1, mql = 0, sql = 0, vendas = 0, fat = 0;
-    while (page <= 100) {
-      const d = _kget('/leads?filter[pipeline_id]=' + cfg.pipelineId + '&limit=250&page=' + page);
-      const leads = ((d._embedded || {}).leads) || [];
-      if (!leads.length) break;
-      leads.forEach(l => {
-        const st = l.status_id;
-        if (mqlS.has(st)) mql++;
-        if (sqlS.has(st)) sql++;
-        if (vS.has(st)) { vendas++; fat += (l.price || 0); }
-      });
-      if (leads.length < 250) break;
-      page++;
-    }
-    out[funil] = { mql, sql, vendas, fat, gravaVendas: !!cfg.gravaVendas };
+    const agg = { mql: 0, sql: 0, vendas: 0, fat: 0, leadsCrm: 0, gravaVendas: !!cfg.gravaVendas };
+    (cfg.pipelines || []).forEach(p => {
+      const r = _contaPipeline(p);
+      agg.mql += r.mql; agg.sql += r.sql; agg.vendas += r.vendas; agg.fat += r.fat; agg.leadsCrm += r.leads;
+    });
+    out[funil] = agg;
   });
   _gravarCrmKommo(out);
   Logger.log('Kommo atualizado: ' + JSON.stringify(out));
 }
 
-// upsert por funil: sempre atualiza mql/sql; vendas/faturamento só se gravaVendas=true
+// upsert por funil: sempre mql/sql; vendas/faturamento só se gravaVendas=true
 function _gravarCrmKommo(out) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   let sh = ss.getSheetByName(ABA_CRM_K);
