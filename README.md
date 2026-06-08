@@ -1,64 +1,62 @@
 # Painel de Performance — Gestão de Impacto
 
-Dashboard de tráfego pago + funil de vendas, separado por funil (**HOME · GINE · TREINAMENTO**).
-Single-file (`index.html`), lê os dados de uma **planilha Google** publicada em CSV. Sem build, sem backend.
+Dashboard de tráfego pago + funil de vendas, **por funil** (HOME · GINE · TREINAMENTOS) e **consolidado (Geral)**.
+Single-file (`index.html`), tema escuro na identidade da GI. Lê os dados direto de uma **planilha Google** (CSV). Sem build, sem backend.
 
-**Ao vivo:** _(GitHub Pages será ativado após o primeiro push)_
-
----
-
-## Como conectar a planilha (passo a passo)
-
-1. Crie uma planilha no Google Sheets com **2 abas**, nomeadas exatamente `trafego` e `crm` (colunas abaixo).
-2. **Arquivo → Compartilhar → Publicar na web** _ou_ deixe o acesso como **"Qualquer pessoa com o link → Leitor"**.
-3. Copie o **ID** da planilha (o trecho entre `/d/` e `/edit` na URL).
-4. Abra o `index.html`, e no topo do `<script>` cole o ID em `CONFIG.SHEET_ID`:
-   ```js
-   const CONFIG = {
-     SHEET_ID: 'COLE_O_ID_AQUI',
-     TAB_TRAFEGO: 'trafego',
-     TAB_CRM: 'crm',
-   };
-   ```
-5. Commit + push. Pronto — o painel passa a ler os dados reais (sai do "modo demonstração").
-
-> Enquanto `SHEET_ID` estiver vazio, o painel mostra **dados de exemplo** só pra você ver o layout.
+**Planilha conectada:** `1ZNOVea2o74XIKfJuCN60ycfWkD83mEexXoZUYXdzjL4`
+**Ao vivo:** _(GitHub Pages ativa quando você autorizar)_
 
 ---
 
-## Modelo da planilha
+## Como a planilha alimenta o painel
 
-### Aba `trafego` — Meta Ads (uma linha por campanha por dia)
-| coluna | exemplo | de onde vem |
+Cada **funil é uma aba** com o export do Meta Ads. O painel lê uma aba por funil e monta tudo (Geral = soma de todos).
+Abas que ainda não existirem são **ignoradas** — então dá pra começar só com a HOME e ir adicionando.
+
+| Funil no painel | Aba na planilha | Status |
 |---|---|---|
-| `data` | `2026-06-07` | Meta (data do gasto) — opcional, habilita o gráfico diário |
-| `funil` | `HOME` / `GINE` / `TREINAMENTO` | você classifica (ou pelo prefixo do nome da campanha) |
-| `campanha` | `HOME · Lead Frio` | Meta (nome da campanha) |
-| `investimento` | `230,50` | Meta (valor gasto) |
-| `impressoes` | `42000` | Meta |
-| `cliques` | `820` | Meta (cliques no link) |
-| `leads` | `36` | Meta (resultados/leads) |
+| HOME | `HOME` | ✅ preenchida |
+| GINE | `GINE` | adicionar quando tiver |
+| TREINAMENTOS | `TREINAMENTOS` | adicionar quando tiver |
 
-### Aba `crm` — Kommo + Hotmart (uma linha por funil; pode repetir por dia)
-| coluna | exemplo | de onde vem |
-|---|---|---|
-| `data` | `2026-06-07` | opcional |
-| `funil` | `HOME` / `GINE` / `TREINAMENTO` | o pipeline correspondente no Kommo |
-| `mql` | `42` | Kommo (leads que viraram MQL) |
-| `sql` | `24` | Kommo (leads que viraram SQL) |
-| `vendas` | `9` | Kommo (ganhos) ou Hotmart (vendas aprovadas) |
-| `faturamento` | `8730,00` | Hotmart / Kommo (receita) |
+### Colunas das abas de funil (export Meta Ads — já é o formato da aba HOME)
+`Date`, `Spend (Cost, Amount Spent)`, `Campaign Name`, `Adset Name`, `Ad Name`,
+`Instagram Permalink URL`, `Action Link Clicks`, `CTR`, `CPM`, `Impressions`,
+`Action Landing Page View`, `Action Leads`.
+> O painel acha as colunas pelo nome (tolera variações). CPM/CPC/CTR são recalculados a partir de gasto/impressões/cliques.
 
-**Observações**
-- Valores em real podem vir como `1.234,56` ou `1234.56` — o painel entende os dois.
-- `funil` aceita variações (`Home`, `GI na Estrada`, `Treinamentos`) — são normalizadas para HOME / GINE / TREINAMENTO.
-- O **ROAS** é calculado: `faturamento ÷ investimento` (por funil e no total).
+### Aba `crm` (opcional) — MQL, SQL e vendas por funil
+Preenchida automaticamente pelos Apps Scripts (`integracoes/`). Colunas:
+`funil`, `mql`, `sql`, `vendas`, `faturamento`. Enquanto não existir, o painel mostra `—` nessas etapas.
+
+| funil | mql | sql | vendas | faturamento |
+|---|---|---|---|---|
+| HOME | 30 | 17 | 7 | 13979 |
 
 ---
 
-## Métricas calculadas
-CPL (`investimento ÷ leads`), CPA (`investimento ÷ vendas`), Ticket médio (`faturamento ÷ vendas`),
-taxas de conversão Lead→MQL, MQL→SQL, SQL→Venda e Lead→Venda, e **ROAS** por funil e consolidado.
+## Métricas
+Por etapa do funil (Impressões → Cliques → LPV → Leads → **MQL → SQL** → Vendas): **volume, custo e conversão**.
+Custos: CPM, CPC, Custo/LPV, CPL, Custo/MQL, Custo/SQL, CPA. Conversões: CTR, Cliques→LPV, LPV→Lead,
+**Conv. MQL**, **Conv. SQL**, SQL→Venda. E **ROAS** = faturamento ÷ investimento, por funil e no Geral.
+
+## Configuração (no topo do `<script>` do `index.html`)
+```js
+const CONFIG = {
+  SHEET_ID: '1ZNOVea2o74XIKfJuCN60ycfWkD83mEexXoZUYXdzjL4',
+  FUNIS: [
+    { key:'HOME',        tab:'HOME',         label:'HOME',         cor:'#38BDF8' },
+    { key:'GINE',        tab:'GINE',         label:'GINE',         cor:'#2DD4BF' },
+    { key:'TREINAMENTO', tab:'TREINAMENTOS', label:'TREINAMENTOS', cor:'#FBBF24' },
+  ],
+  TAB_CRM: 'crm',
+};
+```
+Para adicionar um funil: crie a aba na planilha e garanta que ela está na lista `FUNIS`.
+A planilha precisa estar como **“qualquer pessoa com o link → Leitor”**.
+
+## Integrações (Kommo / Hotmart → aba `crm`)
+Ver [`integracoes/`](./integracoes/). Os segredos ficam nas *Propriedades do script* (privados), nunca aqui.
 
 ## Stack
 HTML + Tailwind (CDN) + Chart.js + PapaParse. Hospedável em GitHub Pages.

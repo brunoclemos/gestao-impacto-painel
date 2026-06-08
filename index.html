@@ -4,59 +4,66 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Painel de Performance · Gestão de Impacto</title>
-  <meta name="description" content="Painel de tráfego pago e funil de vendas — Gestão de Impacto. HOME · GINE · TREINAMENTO." />
+  <meta name="description" content="Painel de tráfego pago e funil de vendas — Gestão de Impacto. Geral · HOME · GINE · TREINAMENTOS." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
     :root{
-      --navy:#0A2540; --navy2:#0F2E50; --teal:#14B8A6; --teal2:#0D9488;
-      --cream:#F6F8FB; --line:#E5EAF0; --slate:#64748B; --ink:#0A2540;
-      --home:#0EA5E9; --gine:#14B8A6; --trein:#F59E0B;
-      --ok:#10B981; --warn:#F59E0B; --bad:#EF4444;
+      --bg:#0A1322; --bg2:#0C1626; --panel:#0F1D33; --panel2:#0D1A2E; --line:#1C2C46;
+      --text:#E9F0F9; --muted:#8DA2C0; --faint:#62789a;
+      --home:#38BDF8; --gine:#2DD4BF; --trein:#FBBF24; --all:#A8C0E0;
+      --good:#34D399; --warn:#FBBF24; --bad:#F87171;
     }
-    html,body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--cream);color:var(--ink);-webkit-font-smoothing:antialiased;}
-    .card{background:#fff;border:1px solid var(--line);border-radius:16px;}
-    .kpi-label{letter-spacing:.05em;text-transform:uppercase;font-size:11px;font-weight:700;color:var(--slate);}
-    .kpi-value{font-size:26px;font-weight:800;letter-spacing:-.02em;color:var(--ink);line-height:1.1;}
-    .kpi-sub{font-size:12px;color:var(--slate);}
-    .pill{padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;font-weight:600;font-size:13px;color:var(--ink);cursor:pointer;transition:all .15s ease;display:inline-flex;align-items:center;gap:8px;}
-    .pill:hover{border-color:var(--teal);}
-    .pill.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+    *{box-sizing:border-box}
+    html,body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;}
+    .brand{font-family:'Rajdhani',sans-serif;}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;}
+    .kpi-label{letter-spacing:.06em;text-transform:uppercase;font-size:10.5px;font-weight:700;color:var(--muted);}
+    .kpi-value{font-size:25px;font-weight:800;letter-spacing:-.02em;color:#fff;line-height:1.1;}
+    .kpi-sub{font-size:11.5px;color:var(--muted);}
+    .pill{padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);font-weight:600;font-size:13px;color:var(--text);cursor:pointer;transition:all .15s ease;display:inline-flex;align-items:center;gap:8px;}
+    .pill:hover{border-color:#33507c;}
+    .pill.active{background:#fff;color:var(--bg);border-color:#fff;}
     .dot{display:inline-block;width:9px;height:9px;border-radius:999px;}
-    .logo-mark{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,var(--navy) 0%,var(--teal) 100%);display:grid;place-items:center;color:#fff;font-weight:900;font-size:15px;letter-spacing:-.03em;}
-    .tag{font-size:11px;padding:4px 9px;border-radius:7px;background:rgba(20,184,166,.12);color:var(--teal2);font-weight:700;letter-spacing:.03em;text-transform:uppercase;}
+    .tag{font-size:10.5px;padding:4px 9px;border-radius:7px;background:rgba(56,189,248,.12);color:#7dd3fc;font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
     .divider{height:1px;background:var(--line);}
-    .step-bar{height:8px;border-radius:999px;background:#EEF2F7;overflow:hidden;}
-    .step-bar > span{display:block;height:100%;border-radius:999px;transition:width .5s ease;}
-    .demo-badge{font-size:11px;font-weight:700;padding:5px 11px;border-radius:999px;background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;}
-    .table-row:hover{background:#F8FAFC;}
+    .step{position:relative;border:1px solid var(--line);border-radius:12px;background:var(--panel2);padding:14px 16px;}
+    .step-track{height:8px;border-radius:999px;background:#0a1424;overflow:hidden;}
+    .step-track > span{display:block;height:100%;border-radius:999px;transition:width .6s ease;}
+    .conv{font-size:11px;color:var(--muted);text-align:center;padding:3px 0;}
+    .demo-badge{font-size:11px;font-weight:700;padding:5px 11px;border-radius:999px;background:rgba(251,191,36,.14);color:#FCD34D;border:1px solid rgba(251,191,36,.3);}
+    table{border-collapse:collapse}
+    .table-row:hover{background:#0d1b30;}
     @keyframes spin{to{transform:rotate(360deg)}}
     .spinning{animation:spin .8s linear infinite;}
     @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
     .fade{animation:fade .35s ease both;}
-    ::-webkit-scrollbar{height:8px;width:8px}::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:8px}
+    a{color:inherit}
+    ::-webkit-scrollbar{height:9px;width:9px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#22344f;border-radius:8px}
   </style>
 </head>
 <body class="min-h-screen">
 
 <!-- HEADER -->
-<header class="bg-white border-b" style="border-color:var(--line)">
-  <div class="max-w-[1280px] mx-auto px-5 sm:px-6 py-4 flex items-center justify-between flex-wrap gap-3">
-    <div class="flex items-center gap-3">
-      <div class="logo-mark">g.i</div>
-      <div>
-        <div class="text-[15px] font-bold tracking-tight leading-tight">Gestão de Impacto</div>
-        <div class="text-xs text-slate-500">Painel de Performance · Tráfego &amp; Funil de Vendas</div>
-      </div>
+<header style="background:var(--bg2);border-bottom:1px solid var(--line)">
+  <div class="max-w-[1320px] mx-auto px-5 sm:px-6 py-4 flex items-center justify-between flex-wrap gap-3">
+    <!-- LOGO -->
+    <div class="flex items-center gap-3 brand" style="letter-spacing:.02em">
+      <span class="text-[19px] sm:text-[22px] font-medium tracking-[.12em] text-white/90">GESTÃO DE</span>
+      <svg width="22" height="26" viewBox="0 0 32 38" fill="none" aria-hidden="true">
+        <path d="M16 2 L30 16 L23 16 L16 9 L9 16 L2 16 Z" fill="#fff"/>
+        <path d="M16 18 L30 32 L23 32 L16 25 L9 32 L2 32 Z" fill="#fff"/>
+      </svg>
+      <span class="text-[19px] sm:text-[22px] font-bold tracking-[.04em] text-white">IMPACTO</span>
     </div>
     <div class="flex items-center gap-2 sm:gap-3">
-      <span id="demo-badge" class="demo-badge hidden">● Modo demonstração</span>
-      <span class="text-xs text-slate-500 hidden sm:inline" id="period-label">Carregando…</span>
-      <button id="refresh-btn" class="inline-flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-full border hover:border-teal-400 hover:text-teal-600 transition-colors disabled:opacity-50" style="border-color:var(--line)" title="Recarregar dados">
+      <span id="demo-badge" class="demo-badge hidden">● demonstração</span>
+      <span class="text-xs hidden sm:inline" style="color:var(--muted)" id="period-label">Carregando…</span>
+      <button id="refresh-btn" class="inline-flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-full border transition-colors disabled:opacity-50" style="border-color:var(--line);color:var(--text)" title="Recarregar dados">
         <svg id="refresh-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
         <span id="refresh-label">Atualizar</span>
       </button>
@@ -64,500 +71,417 @@
   </div>
 </header>
 
-<main class="max-w-[1280px] mx-auto px-5 sm:px-6 py-6 sm:py-8">
+<main class="max-w-[1320px] mx-auto px-5 sm:px-6 py-6 sm:py-8">
 
-  <!-- TITLE + FILTERS -->
+  <!-- TITLE + FUNIL TABS -->
   <section class="mb-6 flex items-end justify-between flex-wrap gap-4">
     <div>
-      <h1 class="text-2xl sm:text-[28px] font-extrabold tracking-tight">Visão Geral</h1>
-      <p class="text-sm text-slate-500 mt-1">Performance dos três funis — <strong>HOME</strong>, <strong>GINE</strong> e <strong>TREINAMENTO</strong> — do investimento à venda.</p>
+      <h1 class="text-2xl sm:text-[27px] font-extrabold tracking-tight text-white">Performance de Tráfego &amp; Funil</h1>
+      <p class="text-sm mt-1" style="color:var(--muted)">Do investimento à venda — por funil e consolidado.</p>
     </div>
     <div class="flex flex-wrap gap-2" id="funil-filters">
-      <button class="pill active" data-funil="ALL">Todos os Funis</button>
-      <button class="pill" data-funil="HOME"><span class="dot" style="background:var(--home)"></span>HOME</button>
-      <button class="pill" data-funil="GINE"><span class="dot" style="background:var(--gine)"></span>GINE</button>
-      <button class="pill" data-funil="TREINAMENTO"><span class="dot" style="background:var(--trein)"></span>TREINAMENTO</button>
+      <button class="pill active" data-funil="ALL">Geral</button>
+      <!-- pills de funil injetados -->
     </div>
   </section>
 
-  <!-- KPI GRID -->
-  <section class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6" id="kpi-grid">
-    <div class="card p-4 sm:p-5">
-      <div class="kpi-label">Investimento</div>
-      <div class="kpi-value mt-2" id="kpi-spend">—</div>
-      <div class="kpi-sub mt-1">Meta Ads · CPL <span id="kpi-cpl" class="font-semibold text-slate-700">—</span></div>
-    </div>
-    <div class="card p-4 sm:p-5">
-      <div class="kpi-label">Leads</div>
-      <div class="kpi-value mt-2" id="kpi-leads">—</div>
-      <div class="kpi-sub mt-1"><span id="kpi-clicks">—</span> cliques</div>
-    </div>
-    <div class="card p-4 sm:p-5" style="background:#F0F9FF;border-color:#BAE6FD;">
-      <div class="kpi-label" style="color:#0369A1">MQL</div>
-      <div class="kpi-value mt-2" id="kpi-mql">—</div>
-      <div class="kpi-sub mt-1">Lead → MQL <span id="kpi-r-leadmql" class="font-semibold text-slate-700">—</span></div>
-    </div>
-    <div class="card p-4 sm:p-5" style="background:#F0FDFA;border-color:#99F6E4;">
-      <div class="kpi-label" style="color:#0F766E">SQL</div>
-      <div class="kpi-value mt-2" id="kpi-sql">—</div>
-      <div class="kpi-sub mt-1">MQL → SQL <span id="kpi-r-mqlsql" class="font-semibold text-slate-700">—</span></div>
-    </div>
-    <div class="card p-4 sm:p-5">
-      <div class="kpi-label">Vendas</div>
-      <div class="kpi-value mt-2" id="kpi-sales">—</div>
-      <div class="kpi-sub mt-1">CPA <span id="kpi-cpa" class="font-semibold text-slate-700">—</span></div>
-    </div>
-    <div class="card p-4 sm:p-5">
-      <div class="kpi-label">Faturamento</div>
-      <div class="kpi-value mt-2" id="kpi-revenue">—</div>
-      <div class="kpi-sub mt-1">Ticket médio <span id="kpi-ticket" class="font-semibold text-slate-700">—</span></div>
-    </div>
-    <div class="card p-4 sm:p-5">
-      <div class="kpi-label">Conversão Lead → Venda</div>
-      <div class="kpi-value mt-2" id="kpi-leadsale">—</div>
-      <div class="kpi-sub mt-1">eficiência do funil</div>
-    </div>
-    <div class="card p-4 sm:p-5" style="background:linear-gradient(135deg,var(--navy) 0%,var(--teal) 115%);border:0;">
-      <div class="kpi-label" style="color:#A7F3D0">ROAS</div>
-      <div class="kpi-value mt-2" id="kpi-roas" style="color:#fff">—</div>
-      <div class="kpi-sub mt-1" style="color:#CBD5E1">Retorno por R$ investido</div>
-    </div>
-  </section>
+  <div id="empty-state" class="hidden card p-10 text-center" style="color:var(--muted)">
+    Nenhum dado carregado. Verifique se a planilha está compartilhada como “qualquer pessoa com o link: Leitor”.
+  </div>
 
-  <!-- FUNIS LADO A LADO -->
-  <section class="mb-6">
-    <div class="flex items-baseline justify-between mb-3">
-      <h2 class="text-lg font-bold tracking-tight">Funis lado a lado</h2>
-      <span class="tag">Comparativo</span>
-    </div>
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4" id="funil-cards"><!-- cards injetados --></div>
-  </section>
-
-  <!-- CHARTS ROW 1 -->
-  <section class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-    <div class="card p-5 lg:col-span-2">
-      <div class="flex items-center justify-between mb-1">
-        <div class="text-sm font-bold tracking-tight">Investimento × Faturamento por funil</div>
-        <span class="text-xs text-slate-400" id="ix-scope">Todos os funis</span>
+  <div id="dash">
+    <!-- KPI GRID -->
+    <section class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6" id="kpi-grid">
+      <div class="card p-4 sm:p-5">
+        <div class="kpi-label">Investimento</div><div class="kpi-value mt-2" id="kpi-spend">—</div>
+        <div class="kpi-sub mt-1">CPM <span id="kpi-cpm" class="text-white/80 font-semibold">—</span></div>
       </div>
-      <div class="text-xs text-slate-500 mb-4">Quanto entrou para cada real investido</div>
-      <div style="height:300px"><canvas id="chart-invrev"></canvas></div>
-    </div>
-    <div class="card p-5">
-      <div class="text-sm font-bold tracking-tight mb-1">Distribuição de Vendas</div>
-      <div class="text-xs text-slate-500 mb-4">Participação de cada funil</div>
-      <div style="height:300px"><canvas id="chart-sales-pie"></canvas></div>
-    </div>
-  </section>
-
-  <!-- CHARTS ROW 2 -->
-  <section class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-    <div class="card p-5 lg:col-span-2">
-      <div class="text-sm font-bold tracking-tight mb-1">Evolução diária do investimento</div>
-      <div class="text-xs text-slate-500 mb-4">Gasto por funil ao longo dos dias</div>
-      <div style="height:290px"><canvas id="chart-daily"></canvas></div>
-    </div>
-    <div class="card p-5">
-      <div class="text-sm font-bold tracking-tight mb-1">Funil de conversão</div>
-      <div class="text-xs text-slate-500 mb-4" id="funnel-scope">Todos os funis</div>
-      <div style="height:290px"><canvas id="chart-funnel"></canvas></div>
-    </div>
-  </section>
-
-  <!-- CAMPAIGN TABLE -->
-  <section class="card p-5 mb-10">
-    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-      <div>
-        <div class="text-sm font-bold tracking-tight">Desempenho por campanha</div>
-        <div class="text-xs text-slate-500">Meta Ads · ordenado por investimento</div>
+      <div class="card p-4 sm:p-5">
+        <div class="kpi-label">Cliques no link</div><div class="kpi-value mt-2" id="kpi-clicks">—</div>
+        <div class="kpi-sub mt-1">CTR <span id="kpi-ctr" class="text-white/80 font-semibold">—</span> · CPC <span id="kpi-cpc" class="text-white/80 font-semibold">—</span></div>
       </div>
-      <div class="text-xs text-slate-500" id="camp-count">—</div>
-    </div>
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm whitespace-nowrap">
-        <thead>
-          <tr class="text-left text-[11px] uppercase tracking-wider text-slate-500 border-b" style="border-color:var(--line)">
-            <th class="py-2.5 pr-4">Campanha</th>
-            <th class="py-2.5 pr-4">Funil</th>
-            <th class="py-2.5 pr-4 text-right">Investimento</th>
-            <th class="py-2.5 pr-4 text-right">Impressões</th>
-            <th class="py-2.5 pr-4 text-right">Cliques</th>
-            <th class="py-2.5 pr-4 text-right">Leads</th>
-            <th class="py-2.5 pr-4 text-right">CPL</th>
-          </tr>
-        </thead>
-        <tbody id="camp-table"></tbody>
-      </table>
-    </div>
-  </section>
+      <div class="card p-4 sm:p-5">
+        <div class="kpi-label">Landing Page Views</div><div class="kpi-value mt-2" id="kpi-lpv">—</div>
+        <div class="kpi-sub mt-1">Custo/LPV <span id="kpi-cplpv" class="text-white/80 font-semibold">—</span></div>
+      </div>
+      <div class="card p-4 sm:p-5" style="border-color:#1f3a5a">
+        <div class="kpi-label" style="color:#7dd3fc">Leads</div><div class="kpi-value mt-2" id="kpi-leads">—</div>
+        <div class="kpi-sub mt-1">CPL <span id="kpi-cpl" class="text-white/80 font-semibold">—</span></div>
+      </div>
+      <div class="card p-4 sm:p-5">
+        <div class="kpi-label">MQL</div><div class="kpi-value mt-2" id="kpi-mql">—</div>
+        <div class="kpi-sub mt-1">Conv. MQL <span id="kpi-cmql" class="text-white/80 font-semibold">—</span></div>
+      </div>
+      <div class="card p-4 sm:p-5">
+        <div class="kpi-label">SQL</div><div class="kpi-value mt-2" id="kpi-sql">—</div>
+        <div class="kpi-sub mt-1">Conv. SQL <span id="kpi-csql" class="text-white/80 font-semibold">—</span></div>
+      </div>
+      <div class="card p-4 sm:p-5">
+        <div class="kpi-label">Vendas</div><div class="kpi-value mt-2" id="kpi-sales">—</div>
+        <div class="kpi-sub mt-1">CPA <span id="kpi-cpa" class="text-white/80 font-semibold">—</span></div>
+      </div>
+      <div class="card p-4 sm:p-5" style="background:linear-gradient(135deg,#0b2a45 0%,#0e7490 130%);border-color:#155e75">
+        <div class="kpi-label" style="color:#a5f3fc">ROAS</div><div class="kpi-value mt-2" id="kpi-roas">—</div>
+        <div class="kpi-sub mt-1" style="color:#cffafe">Faturamento <span id="kpi-rev" class="font-semibold text-white">—</span></div>
+      </div>
+    </section>
 
-  <footer class="text-center text-xs text-slate-500 pb-10">
+    <!-- FUNNEL + CHARTS -->
+    <section class="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-6">
+      <!-- FUNIL DETALHADO -->
+      <div class="card p-5 lg:col-span-2">
+        <div class="flex items-center justify-between mb-1">
+          <div class="text-sm font-bold tracking-tight text-white">Funil de conversão</div>
+          <span class="tag" id="funnel-scope">Geral</span>
+        </div>
+        <div class="text-xs mb-4" style="color:var(--muted)">Etapa · volume · custo · conversão</div>
+        <div id="funnel-steps" class="space-y-1"></div>
+        <p id="crm-hint" class="text-[11px] mt-3 hidden" style="color:var(--warn)">MQL/SQL/Vendas: conecte o Kommo (aba <code>crm</code>) para preencher.</p>
+      </div>
+      <!-- INVESTIMENTO DIARIO -->
+      <div class="card p-5 lg:col-span-3">
+        <div class="text-sm font-bold tracking-tight text-white mb-1">Investimento diário</div>
+        <div class="text-xs mb-4" style="color:var(--muted)">Gasto ao longo do período</div>
+        <div style="height:300px"><canvas id="chart-daily"></canvas></div>
+      </div>
+    </section>
+
+    <!-- COMPARATIVO POR FUNIL (aparece com 2+ funis) -->
+    <section id="cmp-section" class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6 hidden">
+      <div class="card p-5 lg:col-span-2">
+        <div class="text-sm font-bold tracking-tight text-white mb-1">Investimento × Faturamento por funil</div>
+        <div class="text-xs mb-4" style="color:var(--muted)">Retorno por funil</div>
+        <div style="height:280px"><canvas id="chart-invrev"></canvas></div>
+      </div>
+      <div class="card p-5">
+        <div class="text-sm font-bold tracking-tight text-white mb-1">Leads por funil</div>
+        <div class="text-xs mb-4" style="color:var(--muted)">Distribuição</div>
+        <div style="height:280px"><canvas id="chart-leads-pie"></canvas></div>
+      </div>
+    </section>
+
+    <!-- TABELA DE CAMPANHAS -->
+    <section class="card p-5 mb-10">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <div>
+          <div class="text-sm font-bold tracking-tight text-white">Desempenho por campanha</div>
+          <div class="text-xs" style="color:var(--muted)">Meta Ads · ordenado por investimento</div>
+        </div>
+        <div class="text-xs" style="color:var(--muted)" id="camp-count">—</div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm whitespace-nowrap">
+          <thead>
+            <tr class="text-left text-[11px] uppercase tracking-wider border-b" style="color:var(--muted);border-color:var(--line)">
+              <th class="py-2.5 pr-4">Campanha</th><th class="py-2.5 pr-4">Funil</th>
+              <th class="py-2.5 pr-4 text-right">Investido</th><th class="py-2.5 pr-4 text-right">Impr.</th>
+              <th class="py-2.5 pr-4 text-right">Cliques</th><th class="py-2.5 pr-4 text-right">CTR</th>
+              <th class="py-2.5 pr-4 text-right">LPV</th><th class="py-2.5 pr-4 text-right">Leads</th>
+              <th class="py-2.5 pr-4 text-right">CPL</th>
+            </tr>
+          </thead>
+          <tbody id="camp-table"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <footer class="text-center text-xs pb-10" style="color:var(--faint)">
     <div class="divider mb-6"></div>
-    Painel <strong>Gestão de Impacto</strong> · dados de Meta Ads, Kommo (CRM) e Hotmart via planilha<br>
-    <span id="src-note">Conecte a planilha em <code>CONFIG.SHEET_ID</code> para dados ao vivo.</span>
+    Painel <span class="brand font-semibold tracking-wide text-white/70">GESTÃO DE IMPACTO</span> · tráfego (Meta Ads) + funil (Kommo) + vendas (Hotmart)<br>
+    <span id="src-note"></span>
   </footer>
 </main>
 
 <script>
 // =====================================================================
-//  CONFIG — cole aqui o ID da sua planilha do Google (a parte entre /d/ e /edit)
-//  Deixe SHEET_ID vazio para rodar com dados de exemplo (modo demonstração).
-//  A planilha precisa de 2 abas: "trafego" e "crm" (ver README / modelo).
+//  CONFIG
 // =====================================================================
 const CONFIG = {
-  SHEET_ID: '',                 // ex: '1AbC...xyz'
-  TAB_TRAFEGO: 'trafego',       // aba com dados do Meta Ads (por campanha/dia)
-  TAB_CRM: 'crm',               // aba com dados do Kommo + Hotmart (por funil)
+  SHEET_ID: '1ZNOVea2o74XIKfJuCN60ycfWkD83mEexXoZUYXdzjL4',
+  // Cada funil aponta para sua aba de tráfego (Meta). Abas que não existirem são ignoradas.
+  FUNIS: [
+    { key:'HOME',        tab:'HOME',          label:'HOME',        cor:'#38BDF8' },
+    { key:'GINE',        tab:'GINE',          label:'GINE',        cor:'#2DD4BF' },
+    { key:'TREINAMENTO', tab:'TREINAMENTOS',  label:'TREINAMENTOS',cor:'#FBBF24' },
+  ],
+  TAB_CRM: 'crm',   // aba com mql/sql/vendas/faturamento por funil (Kommo + Hotmart)
 };
 
-const FUNIS = ['HOME', 'GINE', 'TREINAMENTO'];
-const FUNIL_COLOR = { HOME:'#0EA5E9', GINE:'#14B8A6', TREINAMENTO:'#F59E0B', ALL:'#0A2540' };
-
-let TRAFEGO = [];   // [{data,funil,campanha,investimento,impressoes,cliques,leads}]
-let CRM = [];       // [{data,funil,mql,sql,vendas,faturamento}]
+const FUNIL_COR = {}; CONFIG.FUNIS.forEach(f=>FUNIL_COR[f.key]=f.cor); FUNIL_COR.ALL='#A8C0E0';
+let DATA = {};      // { FUNIL: { traf:[...], crm:{mql,sql,vendas,faturamento} } }
+let LOADED = [];    // funis com dados
 let activeFunil = 'ALL';
 let charts = {};
 let isDemo = false;
 
 // ---------- helpers ----------
-const csvUrl = (tab) => `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}`;
-
-const stripAccents = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g,'');
-const normKey = (s) => stripAccents(String(s||'')).toLowerCase().trim().replace(/\s+/g,'_');
-
+const gviz = (tab) => `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}`;
+const stripAccents = s => String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'');
 function parseNum(v){
-  if (v == null || v === '') return 0;
-  let s = String(v).replace(/[R$\s%]/g,'').trim();
-  if (s === '') return 0;
-  // formato BR: 1.234,56  ->  1234.56
-  if (s.indexOf(',') > -1) s = s.replace(/\./g,'').replace(',', '.');
-  const n = parseFloat(s);
-  return isFinite(n) ? n : 0;
+  if(v==null||v==='')return 0;
+  let s=String(v).replace(/[R$\s%"]/g,'').trim(); if(s==='')return 0;
+  if(s.indexOf(',')>-1) s=s.replace(/\./g,'').replace(',', '.');
+  const n=parseFloat(s); return isFinite(n)?n:0;
 }
-
-function normFunil(v){
-  const s = stripAccents(String(v||'')).toUpperCase();
-  if (s.includes('HOME')) return 'HOME';
-  if (s.includes('GINE') || s.includes('ESTRADA')) return 'GINE';
-  if (s.includes('TREIN')) return 'TREINAMENTO';
-  return s.trim() || 'OUTROS';
-}
-
 const fmtBRL = n => (Number(n)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2});
 const fmtInt = n => Math.round(Number(n)||0).toLocaleString('pt-BR');
 const fmtPct = n => `${((Number(n)||0)*100).toFixed(1).replace('.',',')}%`;
-const safe = (a,b) => (b>0 ? a/b : 0);
+const safe = (a,b) => b>0 ? a/b : 0;
 
-// ---------- dados de exemplo ----------
-function buildSample(){
-  const days = ['2026-06-02','2026-06-03','2026-06-04','2026-06-05','2026-06-06','2026-06-07'];
-  const weights = [0.85,0.95,1.1,1.05,1.15,0.9]; // soma = 6 (mantém os totais redondos)
-  // valores por DIA por campanha (Meta) — calibrados p/ CPL ~R$190 e ROAS ~1,5–2x
-  const cfg = {
-    HOME: { camps:[
-      { n:'HOME · Lead Frio',   spend:900, imp:60000, clk:1200, leads:5 },
-      { n:'HOME · Remarketing', spend:600, imp:40000, clk:800,  leads:3 },
-    ], crm:{ mql:30, sql:17, vendas:7,  faturamento:13979 } },
-    GINE: { camps:[
-      { n:'GINE · São Joaquim',     spend:750, imp:45000, clk:850, leads:4 },
-      { n:'GINE · Bento Gonçalves', spend:500, imp:33000, clk:620, leads:2 },
-    ], crm:{ mql:28, sql:15, vendas:6,  faturamento:11982 } },
-    TREINAMENTO: { camps:[
-      { n:'TREINAMENTO · Caxias',        spend:1100, imp:70000, clk:1300, leads:6 },
-      { n:'TREINAMENTO · Novo Hamburgo', spend:900,  imp:55000, clk:1050, leads:5 },
-    ], crm:{ mql:42, sql:24, vendas:12, faturamento:23964 } },
+// resolve índices de coluna do export do Meta (nomes podem variar levemente)
+function metaCols(header){
+  const h = header.map(x=>stripAccents(x).toLowerCase().trim());
+  const exact = n => h.indexOf(n);
+  const has = (sub,avoid) => h.findIndex(x => x.includes(sub) && (!avoid || !x.includes(avoid)));
+  return {
+    date: exact('date')>=0?exact('date'):has('date'),
+    spend: has('spend')>=0?has('spend'):has('amount spent'),
+    campaign: has('campaign name')>=0?has('campaign name'):has('campaign'),
+    adset: has('adset'),
+    ad: exact('ad name')>=0?exact('ad name'):has('ad name'),
+    perma: has('permalink'),
+    clicks: has('link clicks')>=0?has('link clicks'):has('clicks'),
+    impr: exact('impressions')>=0?exact('impressions'):has('impressions','cost'),
+    lpv: has('landing page view'),
+    leads: has('leads'),
   };
-  const traf = [], crm = [];
-  FUNIS.forEach(f => {
-    const c = cfg[f];
-    days.forEach((d,di) => {
-      const w = weights[di];
-      c.camps.forEach(cp => {
-        traf.push({
-          data:d, funil:f, campanha:cp.n,
-          investimento:+(cp.spend*w).toFixed(2),
-          impressoes:Math.round(cp.imp*w),
-          cliques:Math.round(cp.clk*w),
-          leads:Math.round(cp.leads*w),
-        });
-      });
-    });
-    // CRM: uma linha por funil com os totais do período (Kommo + Hotmart)
-    crm.push({ data:'', funil:f, mql:c.crm.mql, sql:c.crm.sql, vendas:c.crm.vendas, faturamento:c.crm.faturamento });
-  });
-  return { traf, crm };
 }
 
 // ---------- carregamento ----------
-async function fetchCsv(tab){
-  const res = await fetch(csvUrl(tab) + '&_=' + new Date().getTime(), { cache:'no-store' });
-  if (!res.ok) throw new Error('HTTP '+res.status+' na aba '+tab);
+async function fetchTab(tab){
+  const res = await fetch(gviz(tab)+'&_='+new Date().getTime(), {cache:'no-store'});
+  if(!res.ok) return null;                       // aba inexistente
   const text = await res.text();
-  return new Promise((resolve,reject)=>{
-    Papa.parse(text,{ header:true, skipEmptyLines:true,
-      transformHeader:h=>normKey(h),
-      complete:r=>resolve(r.data), error:reject });
-  });
+  if(/^\s*<!doctype|<html/i.test(text)) return null; // não pública / html
+  const parsed = Papa.parse(text.trim(), {skipEmptyLines:true});
+  return parsed.data;                            // array de arrays (com header)
+}
+
+function parseTrafego(rows){
+  if(!rows || rows.length<2) return [];
+  const c = metaCols(rows[0]);
+  if(c.spend<0) return [];
+  const out=[];
+  for(let i=1;i<rows.length;i++){
+    const r=rows[i]; if(!r || r.length<2) continue;
+    const date=(r[c.date]||'').trim();
+    const spend=parseNum(r[c.spend]);
+    const campaign=(r[c.campaign]||'').trim();
+    if(!date && !campaign) continue;
+    out.push({
+      date, campaign,
+      adset:(r[c.adset]||'').trim(), ad:(r[c.ad]||'').trim(), perma:(r[c.perma]||'').trim(),
+      spend, impressions:parseNum(r[c.impr]), clicks:parseNum(r[c.clicks]),
+      lpv:parseNum(r[c.lpv]), leads:parseNum(r[c.leads]),
+    });
+  }
+  return out;
+}
+
+function parseCrm(rows){
+  const map={};
+  if(!rows || rows.length<2) return map;
+  const h=rows[0].map(x=>stripAccents(x).toLowerCase().trim());
+  const idx=n=>h.indexOf(n);
+  const iF=idx('funil'), iM=idx('mql'), iS=idx('sql'), iV=idx('vendas'), iR=h.findIndex(x=>x.includes('fatur'));
+  if(iF<0) return map;
+  for(let i=1;i<rows.length;i++){
+    const r=rows[i]; const f=stripAccents(r[iF]||'').toUpperCase().trim(); if(!f) continue;
+    const key = f.includes('HOME')?'HOME':(f.includes('GINE')||f.includes('ESTRADA'))?'GINE':f.includes('TREIN')?'TREINAMENTO':f;
+    const e=map[key]||(map[key]={mql:0,sql:0,vendas:0,faturamento:0});
+    if(iM>=0)e.mql+=parseNum(r[iM]); if(iS>=0)e.sql+=parseNum(r[iS]);
+    if(iV>=0)e.vendas+=parseNum(r[iV]); if(iR>=0)e.faturamento+=parseNum(r[iR]);
+  }
+  return map;
 }
 
 async function loadData(){
-  if (!CONFIG.SHEET_ID){
-    isDemo = true;
-    const s = buildSample();
-    TRAFEGO = s.traf; CRM = s.crm;
-    return;
-  }
-  isDemo = false;
-  const [traf, crm] = await Promise.all([ fetchCsv(CONFIG.TAB_TRAFEGO), fetchCsv(CONFIG.TAB_CRM) ]);
-  TRAFEGO = traf.filter(r => r.funil || r.campanha).map(r => ({
-    data:(r.data||'').trim(), funil:normFunil(r.funil),
-    campanha:(r.campanha||'').trim() || '(sem nome)',
-    investimento:parseNum(r.investimento), impressoes:parseNum(r.impressoes),
-    cliques:parseNum(r.cliques), leads:parseNum(r.leads),
-  }));
-  CRM = crm.filter(r => r.funil).map(r => ({
-    data:(r.data||'').trim(), funil:normFunil(r.funil),
-    mql:parseNum(r.mql), sql:parseNum(r.sql),
-    vendas:parseNum(r.vendas), faturamento:parseNum(r.faturamento),
-  }));
+  isDemo=false; DATA={}; LOADED=[];
+  if(!CONFIG.SHEET_ID){ isDemo=true; demo(); return; }
+  // tráfego por funil (tolerante a abas ausentes)
+  const results = await Promise.all(CONFIG.FUNIS.map(f=>fetchTab(f.tab).catch(()=>null)));
+  const crmRows = await fetchTab(CONFIG.TAB_CRM).catch(()=>null);
+  const crm = parseCrm(crmRows);
+  CONFIG.FUNIS.forEach((f,i)=>{
+    const traf=parseTrafego(results[i]);
+    if(traf.length){ DATA[f.key]={traf, crm: crm[f.key]||{mql:0,sql:0,vendas:0,faturamento:0}}; LOADED.push(f.key); }
+  });
+  if(!LOADED.length){ isDemo=true; demo(); }
 }
 
-// ---------- agregações ----------
-function aggTrafego(funil){
-  const rows = funil==='ALL' ? TRAFEGO : TRAFEGO.filter(r=>r.funil===funil);
-  return rows.reduce((a,r)=>({
-    investimento:a.investimento+r.investimento, impressoes:a.impressoes+r.impressoes,
-    cliques:a.cliques+r.cliques, leads:a.leads+r.leads
-  }),{investimento:0,impressoes:0,cliques:0,leads:0});
+function demo(){ // fallback só se a planilha não carregar
+  const days=['2026-06-03','2026-06-04','2026-06-05','2026-06-06','2026-06-07'];
+  const mk=(spend,imp,clk,lpv,leads,camp)=>days.map((d,di)=>({date:d,campaign:camp,adset:'',ad:'',perma:'',
+    spend:+(spend*[0.9,1,1.1,1.05,0.95][di]).toFixed(2),impressions:Math.round(imp),clicks:Math.round(clk),lpv:Math.round(lpv),leads:Math.round(leads)}));
+  DATA={HOME:{traf:[...mk(900,60000,1200,520,8,'HOME - LEAD - QUENTE'),...mk(600,40000,800,360,5,'HOME - LEAD - FRIO')],crm:{mql:30,sql:17,vendas:7,faturamento:13979}}};
+  LOADED=['HOME'];
 }
-function aggCrm(funil){
-  const rows = funil==='ALL' ? CRM : CRM.filter(r=>r.funil===funil);
-  return rows.reduce((a,r)=>({
-    mql:a.mql+r.mql, sql:a.sql+r.sql, vendas:a.vendas+r.vendas, faturamento:a.faturamento+r.faturamento
-  }),{mql:0,sql:0,vendas:0,faturamento:0});
+
+// ---------- agregação ----------
+function trafOf(funil){ return funil==='ALL' ? LOADED.flatMap(k=>DATA[k].traf) : (DATA[funil]?DATA[funil].traf:[]); }
+function crmOf(funil){
+  if(funil!=='ALL') return DATA[funil]?DATA[funil].crm:{mql:0,sql:0,vendas:0,faturamento:0};
+  return LOADED.reduce((a,k)=>({mql:a.mql+DATA[k].crm.mql,sql:a.sql+DATA[k].crm.sql,vendas:a.vendas+DATA[k].crm.vendas,faturamento:a.faturamento+DATA[k].crm.faturamento}),{mql:0,sql:0,vendas:0,faturamento:0});
 }
-function scopeStats(funil){
-  const t = aggTrafego(funil), c = aggCrm(funil);
-  return {
-    ...t, ...c,
-    cpl: safe(t.investimento, t.leads),
-    cpa: safe(t.investimento, c.vendas),
-    ticket: safe(c.faturamento, c.vendas),
-    roas: safe(c.faturamento, t.investimento),
-    rLeadMql: safe(c.mql, t.leads),
-    rMqlSql: safe(c.sql, c.mql),
-    rSqlSale: safe(c.vendas, c.sql),
-    rLeadSale: safe(c.vendas, t.leads),
+function stats(funil){
+  const t=trafOf(funil).reduce((a,r)=>({spend:a.spend+r.spend,impressions:a.impressions+r.impressions,clicks:a.clicks+r.clicks,lpv:a.lpv+r.lpv,leads:a.leads+r.leads}),{spend:0,impressions:0,clicks:0,lpv:0,leads:0});
+  const c=crmOf(funil);
+  return {...t,...c,
+    cpm:safe(t.spend,t.impressions/1000), cpc:safe(t.spend,t.clicks), ctr:safe(t.clicks,t.impressions),
+    cplpv:safe(t.spend,t.lpv), cpl:safe(t.spend,t.leads),
+    cmql:safe(c.mql,t.leads), csql:safe(c.sql,c.mql),
+    cpmql:safe(t.spend,c.mql), cpsql:safe(t.spend,c.sql), cpa:safe(t.spend,c.vendas),
+    ticket:safe(c.faturamento,c.vendas), roas:safe(c.faturamento,t.spend),
   };
 }
 
-// ---------- render: KPIs ----------
+// ---------- render ----------
+function renderPills(){
+  const wrap=document.getElementById('funil-filters');
+  wrap.querySelectorAll('[data-funil]:not([data-funil="ALL"])').forEach(b=>b.remove());
+  CONFIG.FUNIS.filter(f=>LOADED.includes(f.key)).forEach(f=>{
+    const b=document.createElement('button'); b.className='pill'; b.dataset.funil=f.key;
+    b.innerHTML=`<span class="dot" style="background:${f.cor}"></span>${f.label}`;
+    b.onclick=()=>{activeFunil=f.key;syncPills();renderAll();};
+    wrap.appendChild(b);
+  });
+  wrap.querySelector('[data-funil="ALL"]').onclick=()=>{activeFunil='ALL';syncPills();renderAll();};
+  syncPills();
+}
+function syncPills(){ document.querySelectorAll('#funil-filters .pill').forEach(b=>b.classList.toggle('active',b.dataset.funil===activeFunil)); }
+
 function renderKPIs(){
-  const s = scopeStats(activeFunil);
-  const set = (id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v; };
-  set('kpi-spend', fmtBRL(s.investimento));
-  set('kpi-cpl', s.leads? fmtBRL(s.cpl):'—');
-  set('kpi-leads', fmtInt(s.leads));
-  set('kpi-clicks', fmtInt(s.cliques));
-  set('kpi-mql', fmtInt(s.mql));
-  set('kpi-r-leadmql', s.leads? fmtPct(s.rLeadMql):'—');
-  set('kpi-sql', fmtInt(s.sql));
-  set('kpi-r-mqlsql', s.mql? fmtPct(s.rMqlSql):'—');
-  set('kpi-sales', fmtInt(s.vendas));
-  set('kpi-cpa', s.vendas? fmtBRL(s.cpa):'—');
-  set('kpi-revenue', fmtBRL(s.faturamento));
-  set('kpi-ticket', s.vendas? fmtBRL(s.ticket):'—');
-  set('kpi-leadsale', s.leads? fmtPct(s.rLeadSale):'—');
-  set('kpi-roas', s.investimento? s.roas.toFixed(2).replace('.',',')+'x':'—');
+  const s=stats(activeFunil), set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  set('kpi-spend',fmtBRL(s.spend)); set('kpi-cpm',s.impressions?fmtBRL(s.cpm):'—');
+  set('kpi-clicks',fmtInt(s.clicks)); set('kpi-ctr',s.impressions?fmtPct(s.ctr):'—'); set('kpi-cpc',s.clicks?fmtBRL(s.cpc):'—');
+  set('kpi-lpv',fmtInt(s.lpv)); set('kpi-cplpv',s.lpv?fmtBRL(s.cplpv):'—');
+  set('kpi-leads',fmtInt(s.leads)); set('kpi-cpl',s.leads?fmtBRL(s.cpl):'—');
+  set('kpi-mql',s.mql?fmtInt(s.mql):'—'); set('kpi-cmql',s.mql?fmtPct(s.cmql):'—');
+  set('kpi-sql',s.sql?fmtInt(s.sql):'—'); set('kpi-csql',s.sql?fmtPct(s.csql):'—');
+  set('kpi-sales',s.vendas?fmtInt(s.vendas):'—'); set('kpi-cpa',s.vendas?fmtBRL(s.cpa):'—');
+  set('kpi-roas',s.spend&&s.faturamento?s.roas.toFixed(2).replace('.',',')+'x':'—'); set('kpi-rev',fmtBRL(s.faturamento));
 }
 
-// ---------- render: cards de funil ----------
-function renderFunilCards(){
-  const wrap = document.getElementById('funil-cards');
-  wrap.innerHTML = FUNIS.map(f=>{
-    const s = scopeStats(f);
-    const color = FUNIL_COLOR[f];
-    const steps = [
-      {label:'Leads', val:s.leads, color:'#94A3B8'},
-      {label:'MQL', val:s.mql, color:'#0EA5E9'},
-      {label:'SQL', val:s.sql, color:'#14B8A6'},
-      {label:'Vendas', val:s.vendas, color:'#10B981'},
-    ];
-    const max = Math.max(s.leads, s.mql, s.sql, s.vendas, 1);
-    const stepsHtml = steps.map(st=>`
-      <div class="mb-2.5">
-        <div class="flex items-center justify-between text-xs mb-1">
-          <span class="text-slate-500 font-medium">${st.label}</span>
-          <span class="font-bold">${fmtInt(st.val)}</span>
+function renderFunnel(){
+  const s=stats(activeFunil);
+  document.getElementById('funnel-scope').textContent = activeFunil==='ALL'?'Geral':activeFunil;
+  document.getElementById('crm-hint').classList.toggle('hidden', !!(s.mql||s.sql||s.vendas));
+  const steps=[
+    {label:'Impressões', val:s.impressions, cost:s.cpm,  costL:'CPM',       conv:null,    cor:'#1e3a5f'},
+    {label:'Cliques no link', val:s.clicks, cost:s.cpc,  costL:'CPC',       conv:s.ctr,   convL:'CTR', cor:'#2563eb'},
+    {label:'Landing Page', val:s.lpv,       cost:s.cplpv,costL:'Custo/LPV', conv:safe(s.lpv,s.clicks), convL:'Cliques→LPV', cor:'#0ea5e9'},
+    {label:'Leads', val:s.leads,            cost:s.cpl,  costL:'CPL',       conv:safe(s.leads,s.lpv), convL:'LPV→Lead', cor:'#38BDF8'},
+    {label:'MQL', val:s.mql,                cost:s.cpmql,costL:'Custo/MQL', conv:s.cmql,  convL:'Conv. MQL', cor:'#22d3ee'},
+    {label:'SQL', val:s.sql,                cost:s.cpsql,costL:'Custo/SQL', conv:s.csql,  convL:'Conv. SQL', cor:'#2dd4bf'},
+    {label:'Vendas', val:s.vendas,          cost:s.cpa,  costL:'CPA',       conv:safe(s.vendas,s.sql), convL:'SQL→Venda', cor:'#34d399'},
+  ];
+  const max=Math.max(...steps.map(x=>x.val||0),1);
+  const host=document.getElementById('funnel-steps');
+  host.innerHTML = steps.map((st,i)=>{
+    const w=Math.max((st.val/max)*100, st.val>0?3:0);
+    const convHtml = st.conv!=null ? `<div class="conv">${st.convL}: <span style="color:#cbd5e1;font-weight:600">${st.val>0||i===0?fmtPct(st.conv):'—'}</span></div>` : '';
+    const costHtml = (st.val>0 && isFinite(st.cost) && st.cost>0) ? `${st.costL} ${fmtBRL(st.cost)}` : `${st.costL} —`;
+    return `${convHtml}
+      <div class="step fade">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[13px] font-semibold text-white">${st.label}</span>
+          <span class="text-[13px] font-bold" style="color:${st.cor}">${st.val>0?fmtInt(st.val):'—'}</span>
         </div>
-        <div class="step-bar"><span style="width:${Math.max((st.val/max)*100,2)}%;background:${st.color}"></span></div>
-      </div>`).join('');
-    const roasColor = s.roas>=3?'#10B981':s.roas>=1.5?'#F59E0B':'#EF4444';
-    return `
-      <div class="card p-5 fade" style="border-top:3px solid ${color}">
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center gap-2">
-            <span class="dot" style="background:${color};width:11px;height:11px"></span>
-            <span class="font-extrabold tracking-tight">${f}</span>
-          </div>
-          <span class="text-[11px] font-bold px-2.5 py-1 rounded-full" style="background:${roasColor}1a;color:${roasColor}">ROAS ${s.investimento? s.roas.toFixed(2).replace('.',',')+'x':'—'}</span>
-        </div>
-        <div class="grid grid-cols-2 gap-3 mb-4">
-          <div><div class="kpi-label">Investido</div><div class="text-lg font-bold mt-0.5">${fmtBRL(s.investimento)}</div></div>
-          <div><div class="kpi-label">Faturamento</div><div class="text-lg font-bold mt-0.5" style="color:var(--teal2)">${fmtBRL(s.faturamento)}</div></div>
-        </div>
-        ${stepsHtml}
-        <div class="divider my-3"></div>
-        <div class="flex items-center justify-between text-xs text-slate-500">
-          <span>CPL ${s.leads? fmtBRL(s.cpl):'—'}</span>
-          <span>CPA ${s.vendas? fmtBRL(s.cpa):'—'}</span>
-          <span>Ticket ${s.vendas? fmtBRL(s.ticket):'—'}</span>
-        </div>
+        <div class="step-track"><span style="width:${w}%;background:${st.cor}"></span></div>
+        <div class="text-[11px] mt-2" style="color:var(--muted)">${costHtml}</div>
       </div>`;
   }).join('');
 }
 
-// ---------- charts ----------
-function destroy(n){ if(charts[n]){ charts[n].destroy(); charts[n]=null; } }
-const gridColor = '#EEF2F7', tickColor = '#64748B';
-
-function renderInvRev(){
-  destroy('invrev');
-  document.getElementById('ix-scope').textContent = activeFunil==='ALL'?'Todos os funis':activeFunil;
-  const labels = FUNIS, inv = FUNIS.map(f=>aggTrafego(f).investimento), rev = FUNIS.map(f=>aggCrm(f).faturamento);
-  charts.invrev = new Chart(document.getElementById('chart-invrev'),{
-    type:'bar',
-    data:{labels,datasets:[
-      {label:'Investimento',data:inv,backgroundColor:'#0A2540',borderRadius:6,maxBarThickness:46},
-      {label:'Faturamento',data:rev,backgroundColor:'#14B8A6',borderRadius:6,maxBarThickness:46},
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'bottom',labels:{color:'#0A2540',usePointStyle:true,padding:16,font:{weight:600}}},
-        tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmtBRL(c.parsed.y)}`}}},
-      scales:{x:{grid:{display:false},ticks:{color:'#0A2540',font:{weight:700}}},
-        y:{grid:{color:gridColor},ticks:{color:tickColor,callback:v=>'R$'+(v/1000)+'k'}}}}
-  });
-}
-
-function renderSalesPie(){
-  destroy('pie');
-  const data = FUNIS.map(f=>aggCrm(f).vendas);
-  charts.pie = new Chart(document.getElementById('chart-sales-pie'),{
-    type:'doughnut',
-    data:{labels:FUNIS,datasets:[{data,backgroundColor:FUNIS.map(f=>FUNIL_COLOR[f]),borderWidth:3,borderColor:'#fff'}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',
-      plugins:{legend:{position:'bottom',labels:{color:'#0A2540',padding:14,usePointStyle:true,font:{weight:600}}},
-        tooltip:{callbacks:{label:c=>`${c.label}: ${fmtInt(c.parsed)} vendas`}}}}
-  });
-}
+function destroy(n){if(charts[n]){charts[n].destroy();charts[n]=null;}}
+const GRID='#16243c', TICK='#8DA2C0';
+Chart.defaults.color=TICK; Chart.defaults.font.family="Inter, sans-serif";
 
 function renderDaily(){
   destroy('daily');
-  const dates = [...new Set(TRAFEGO.map(r=>r.data).filter(Boolean))].sort();
-  const funis = activeFunil==='ALL'?FUNIS:[activeFunil];
-  const datasets = funis.map(f=>({
-    label:f,
-    data:dates.map(d=>TRAFEGO.filter(r=>r.funil===f && r.data===d).reduce((a,r)=>a+r.investimento,0)),
-    borderColor:FUNIL_COLOR[f], backgroundColor:FUNIL_COLOR[f]+'22',
-    tension:.35, fill:true, borderWidth:2.5, pointRadius:3, pointBackgroundColor:'#fff', pointBorderColor:FUNIL_COLOR[f], pointBorderWidth:2,
+  const funis = activeFunil==='ALL'?LOADED:[activeFunil];
+  const dates=[...new Set(trafOf(activeFunil).map(r=>r.date).filter(Boolean))].sort();
+  const datasets=funis.map(k=>({
+    label:k, data:dates.map(d=>DATA[k].traf.filter(r=>r.date===d).reduce((a,r)=>a+r.spend,0)),
+    borderColor:FUNIL_COR[k], backgroundColor:FUNIL_COR[k]+'22', tension:.35, fill:funis.length===1, borderWidth:2.5, pointRadius:0, pointHoverRadius:4,
   }));
-  charts.daily = new Chart(document.getElementById('chart-daily'),{
-    type:'line',
+  charts.daily=new Chart(document.getElementById('chart-daily'),{type:'line',
     data:{labels:dates.map(d=>d.slice(8,10)+'/'+d.slice(5,7)),datasets},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'bottom',labels:{color:'#0A2540',usePointStyle:true,padding:14,font:{weight:600}}},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:funis.length>1,position:'bottom',labels:{usePointStyle:true,padding:14}},
         tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmtBRL(c.parsed.y)}`}}},
-      scales:{x:{grid:{display:false},ticks:{color:tickColor}},
-        y:{grid:{color:gridColor},ticks:{color:tickColor,callback:v=>'R$'+fmtInt(v)}}}}
-  });
+      scales:{x:{grid:{display:false},ticks:{maxTicksLimit:12}},y:{grid:{color:GRID},ticks:{callback:v=>'R$'+fmtInt(v)}}}}});
 }
 
-function renderFunnel(){
-  destroy('funnel');
-  document.getElementById('funnel-scope').textContent = activeFunil==='ALL'?'Todos os funis':activeFunil;
-  const s = scopeStats(activeFunil);
-  const labels = ['Cliques','Leads','MQL','SQL','Vendas'];
-  const values = [s.cliques, s.leads, s.mql, s.sql, s.vendas];
-  charts.funnel = new Chart(document.getElementById('chart-funnel'),{
-    type:'bar',
-    data:{labels,datasets:[{data:values,backgroundColor:['#0A2540','#173E63','#0EA5E9','#14B8A6','#10B981'],borderRadius:6}]},
-    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtInt(c.parsed.x)}}},
-      scales:{x:{grid:{color:gridColor},ticks:{color:tickColor,callback:v=>fmtInt(v)}},
-        y:{grid:{display:false},ticks:{color:'#0A2540',font:{weight:700}}}}}
-  });
+function renderCompare(){
+  const multi=LOADED.length>1;
+  document.getElementById('cmp-section').classList.toggle('hidden',!multi);
+  if(!multi) return;
+  destroy('invrev'); destroy('pie');
+  const labels=LOADED, inv=LOADED.map(k=>stats(k).spend), rev=LOADED.map(k=>stats(k).faturamento), leads=LOADED.map(k=>stats(k).leads);
+  charts.invrev=new Chart(document.getElementById('chart-invrev'),{type:'bar',
+    data:{labels,datasets:[{label:'Investimento',data:inv,backgroundColor:'#3b6ea5',borderRadius:6,maxBarThickness:44},{label:'Faturamento',data:rev,backgroundColor:'#2dd4bf',borderRadius:6,maxBarThickness:44}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:14}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmtBRL(c.parsed.y)}`}}},
+      scales:{x:{grid:{display:false},ticks:{color:'#cbd5e1',font:{weight:700}}},y:{grid:{color:GRID},ticks:{callback:v=>'R$'+fmtInt(v/1000)+'k'}}}}});
+  charts.pie=new Chart(document.getElementById('chart-leads-pie'),{type:'doughnut',
+    data:{labels,datasets:[{data:leads,backgroundColor:LOADED.map(k=>FUNIL_COR[k]),borderWidth:3,borderColor:'#0F1D33'}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:14}},tooltip:{callbacks:{label:c=>`${c.label}: ${fmtInt(c.parsed)} leads`}}}}});
 }
 
-// ---------- tabela de campanhas ----------
 function renderTable(){
-  const rows = activeFunil==='ALL'?TRAFEGO:TRAFEGO.filter(r=>r.funil===activeFunil);
-  const byCamp = {};
-  rows.forEach(r=>{
-    const k = r.campanha+'||'+r.funil;
-    if(!byCamp[k]) byCamp[k] = {campanha:r.campanha,funil:r.funil,investimento:0,impressoes:0,cliques:0,leads:0};
-    byCamp[k].investimento+=r.investimento; byCamp[k].impressoes+=r.impressoes;
-    byCamp[k].cliques+=r.cliques; byCamp[k].leads+=r.leads;
+  const rows=trafOf(activeFunil); const funilDe = r => activeFunil!=='ALL'?activeFunil:(LOADED.find(k=>DATA[k].traf.includes(r))||'');
+  const by={};
+  LOADED.forEach(k=>{ if(activeFunil!=='ALL'&&k!==activeFunil) return;
+    DATA[k].traf.forEach(r=>{ const key=r.campaign+'|'+k;
+      const e=by[key]||(by[key]={campaign:r.campaign||'(sem nome)',funil:k,spend:0,impressions:0,clicks:0,lpv:0,leads:0});
+      e.spend+=r.spend;e.impressions+=r.impressions;e.clicks+=r.clicks;e.lpv+=r.lpv;e.leads+=r.leads;});
   });
-  const list = Object.values(byCamp).sort((a,b)=>b.investimento-a.investimento);
-  const tbody = document.getElementById('camp-table');
-  tbody.innerHTML = list.map(r=>{
-    const cpl = safe(r.investimento,r.leads);
-    const color = FUNIL_COLOR[r.funil]||'#64748B';
-    return `<tr class="table-row border-b" style="border-color:#F1F5F9">
-      <td class="py-3 pr-4 font-semibold">${r.campanha}</td>
-      <td class="py-3 pr-4"><span class="inline-flex items-center gap-1.5 text-xs font-medium"><span class="dot" style="background:${color}"></span>${r.funil}</span></td>
-      <td class="py-3 pr-4 text-right font-bold">${fmtBRL(r.investimento)}</td>
-      <td class="py-3 pr-4 text-right text-slate-600">${fmtInt(r.impressoes)}</td>
-      <td class="py-3 pr-4 text-right text-slate-600">${fmtInt(r.cliques)}</td>
-      <td class="py-3 pr-4 text-right ${r.leads>0?'text-teal-600 font-semibold':'text-slate-400'}">${fmtInt(r.leads)}</td>
-      <td class="py-3 pr-4 text-right text-slate-600">${r.leads? fmtBRL(cpl):'—'}</td>
+  const list=Object.values(by).sort((a,b)=>b.spend-a.spend);
+  document.getElementById('camp-table').innerHTML = list.map(r=>{
+    const ctr=safe(r.clicks,r.impressions), cpl=safe(r.spend,r.leads), cor=FUNIL_COR[r.funil]||'#8DA2C0';
+    return `<tr class="table-row border-b" style="border-color:#142440">
+      <td class="py-3 pr-4 font-medium text-white/90 max-w-[280px] truncate" title="${r.campaign}">${r.campaign}</td>
+      <td class="py-3 pr-4"><span class="inline-flex items-center gap-1.5 text-xs"><span class="dot" style="background:${cor}"></span>${r.funil}</span></td>
+      <td class="py-3 pr-4 text-right font-bold text-white">${fmtBRL(r.spend)}</td>
+      <td class="py-3 pr-4 text-right" style="color:var(--muted)">${fmtInt(r.impressions)}</td>
+      <td class="py-3 pr-4 text-right" style="color:var(--muted)">${fmtInt(r.clicks)}</td>
+      <td class="py-3 pr-4 text-right" style="color:var(--muted)">${fmtPct(ctr)}</td>
+      <td class="py-3 pr-4 text-right" style="color:var(--muted)">${fmtInt(r.lpv)}</td>
+      <td class="py-3 pr-4 text-right ${r.leads>0?'text-sky-300 font-semibold':''}" ${r.leads>0?'':'style="color:var(--faint)"'}>${fmtInt(r.leads)}</td>
+      <td class="py-3 pr-4 text-right" style="color:var(--muted)">${r.leads?fmtBRL(cpl):'—'}</td>
     </tr>`;
-  }).join('') || `<tr><td colspan="7" class="py-8 text-center text-slate-400">Sem campanhas neste funil.</td></tr>`;
-  document.getElementById('camp-count').textContent = `${list.length} ${list.length===1?'campanha':'campanhas'}`;
+  }).join('') || `<tr><td colspan="9" class="py-8 text-center" style="color:var(--faint)">Sem campanhas.</td></tr>`;
+  document.getElementById('camp-count').textContent=`${list.length} ${list.length===1?'campanha':'campanhas'}`;
 }
 
-// ---------- período / badges ----------
-function updateChrome(){
-  document.getElementById('demo-badge').classList.toggle('hidden', !isDemo);
-  const srcNote = document.getElementById('src-note');
-  if (isDemo){ srcNote.innerHTML = '⚠️ Exibindo <strong>dados de exemplo</strong>. Cole o ID da planilha em <code>CONFIG.SHEET_ID</code> para dados reais.'; }
-  else { srcNote.innerHTML = 'Fonte: planilha Google ao vivo.'; }
-  const dates = [...new Set(TRAFEGO.map(r=>r.data).filter(Boolean))].sort();
-  const el = document.getElementById('period-label');
-  if(!dates.length){ el.textContent = isDemo?'Dados de exemplo':'Sem datas'; return; }
-  const meses=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
-  const f=d=>{const[,m,day]=d.split('-');return `${parseInt(day,10)} ${meses[parseInt(m,10)-1]}`;};
+function chrome(){
+  document.getElementById('demo-badge').classList.toggle('hidden',!isDemo);
+  document.getElementById('empty-state').classList.toggle('hidden',LOADED.length>0);
+  document.getElementById('dash').classList.toggle('hidden',LOADED.length===0);
+  const note=document.getElementById('src-note');
+  note.innerHTML = isDemo ? '⚠️ Dados de exemplo (planilha não carregou).' : `Fonte: planilha Google · funis ativos: ${LOADED.join(' · ')}`;
+  const dates=[...new Set(trafOf('ALL').map(r=>r.date).filter(Boolean))].sort();
+  const el=document.getElementById('period-label');
+  if(!dates.length){el.textContent=isDemo?'demonstração':'sem datas';return;}
+  const M=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  const f=d=>{const[y,m,dd]=d.split('-');return `${parseInt(dd,10)} ${M[parseInt(m,10)-1]}`;};
   el.textContent = dates[0]===dates[dates.length-1]?f(dates[0]):`${f(dates[0])} – ${f(dates[dates.length-1])}`;
 }
 
-function renderAll(){
-  renderKPIs(); renderFunilCards(); renderInvRev(); renderSalesPie(); renderDaily(); renderFunnel(); renderTable();
-}
-
-// ---------- eventos ----------
-document.querySelectorAll('#funil-filters .pill').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('#funil-filters .pill').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    activeFunil = btn.dataset.funil;
-    renderAll();
-  });
-});
+function renderAll(){ renderKPIs(); renderFunnel(); renderDaily(); renderCompare(); renderTable(); }
 
 async function refresh(){
-  const btn=document.getElementById('refresh-btn'), icon=document.getElementById('refresh-icon'), label=document.getElementById('refresh-label');
+  const btn=document.getElementById('refresh-btn'),icon=document.getElementById('refresh-icon'),label=document.getElementById('refresh-label');
   btn.disabled=true; icon.classList.add('spinning'); label.textContent='Atualizando…';
   try{
-    await loadData(); updateChrome(); renderAll();
+    await loadData(); if(!LOADED.includes(activeFunil)&&activeFunil!=='ALL') activeFunil='ALL';
+    renderPills(); chrome(); renderAll();
     label.textContent='Atualizado'; setTimeout(()=>label.textContent='Atualizar',1500);
-  }catch(e){
-    console.error(e);
-    document.getElementById('period-label').textContent='Erro ao carregar';
+  }catch(e){ console.error(e); document.getElementById('period-label').textContent='Erro ao carregar';
     label.textContent='Erro'; setTimeout(()=>label.textContent='Atualizar',2000);
-    alert('Não consegui carregar a planilha.\n\nVerifique se:\n• o ID em CONFIG.SHEET_ID está correto\n• a planilha está compartilhada como "qualquer pessoa com o link pode ver"\n• as abas se chamam "'+CONFIG.TAB_TRAFEGO+'" e "'+CONFIG.TAB_CRM+'"\n\nDetalhe técnico: '+e.message);
   }finally{ btn.disabled=false; icon.classList.remove('spinning'); }
 }
-
 document.getElementById('refresh-btn').addEventListener('click', refresh);
 refresh();
 </script>
