@@ -38,8 +38,30 @@ const REGRAS_FUNIL = [
 
 ---
 
-## Kommo (em breve — `kommo.gs`)
-Mesma ideia: um script lê o pipeline do Kommo (estágios MQL/SQL/ganho) e escreve `mql`, `sql` (e, se as
-vendas de alto ticket fecharem no CRM, também `vendas`/`faturamento`) na aba `crm`, por funil.
-Vou montar quando você me passar o **subdomínio** + **token de longa duração** do Kommo e qual estágio
-do funil corresponde a MQL e a SQL.
+## Kommo (`kommo.gs`) — MQL, SQL e (opcional) vendas por funil
+
+1. Planilha → **Extensões → Apps Script** → cole [`kommo.gs`](./kommo.gs) num arquivo novo.
+2. **⚙ Propriedades do script:**
+   - `KOMMO_SUBDOMAIN` = o `XXXX` em `https://XXXX.kommo.com`
+   - `KOMMO_TOKEN` = o token de longa duração (Bearer)
+3. Rode **`listarPipelinesKommo`** e abra *Registros* (Ctrl+Enter). Vai listar cada pipeline (funil) e os
+   estágios com seu `sort`. Anote, por funil: o `pipelineId` e o `sort` do estágio que marca **MQL** e **SQL**.
+4. Preencha **`MAPA_KOMMO`** no topo do script, ex.:
+   ```js
+   const MAPA_KOMMO = {
+     HOME:        { pipelineId: 111, mqlFromSort: 2, sqlFromSort: 4, gravaVendas: false },
+     GINE:        { pipelineId: 222, mqlFromSort: 2, sqlFromSort: 4, gravaVendas: false }, // vendas vêm da Hotmart
+     TREINAMENTO: { pipelineId: 333, mqlFromSort: 2, sqlFromSort: 4, gravaVendas: true  }, // alto ticket fecha no CRM
+   };
+   ```
+   - `gravaVendas: false` → o Kommo só escreve `mql`/`sql` (as `vendas`/`faturamento` ficam com a Hotmart).
+   - `gravaVendas: true`  → o Kommo também escreve `vendas`/`faturamento` desse funil (alto ticket fechado no CRM).
+5. Rode **`atualizarKommo`** e **agende** (relógio → Diário).
+
+> Lógica: estágio "ganho" = 142 e "perdido" = 143 (padrão Kommo em todo pipeline). Perdidos não contam.
+> MQL = leads cujo estágio tem `sort ≥ mqlFromSort` (inclui quem já avançou além). SQL idem.
+
+### Como Hotmart e Kommo convivem na aba `crm`
+- **Hotmart** escreve só `vendas` + `faturamento` (eventos low ticket).
+- **Kommo** escreve `mql` + `sql` sempre; e `vendas`/`faturamento` só nos funis com `gravaVendas: true`.
+- Os dois fazem *upsert* por funil — não se atropelam.
