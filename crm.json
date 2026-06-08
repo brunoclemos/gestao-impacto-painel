@@ -1,0 +1,5 @@
+{
+  "_nota": "MQL/SQL/vendas por funil puxados do Kommo (snapshot). Fallback enquanto a aba 'crm' da planilha nao existir. Quando o Apps Script gravar a aba 'crm', ela tem prioridade.",
+  "_atualizado": "2026-06-08",
+  "HOME": { "mql": 38, "sql": 30, "vendas": 5, "faturamento": 0 }
+}
