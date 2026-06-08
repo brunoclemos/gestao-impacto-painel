@@ -184,6 +184,30 @@
       </div>
     </section>
 
+    <!-- RANKING DE PÚBLICOS -->
+    <section class="card p-5 mb-6">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <div>
+          <div class="text-sm font-bold tracking-tight text-white">Ranking de públicos</div>
+          <div class="text-xs" style="color:var(--muted)">Conjuntos de anúncios (segmentações) · ordenado por leads</div>
+        </div>
+        <div class="text-xs" style="color:var(--muted)" id="aud-count">—</div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm whitespace-nowrap">
+          <thead>
+            <tr class="text-left text-[11px] uppercase tracking-wider border-b" style="color:var(--muted);border-color:var(--line)">
+              <th class="py-2.5 pr-4">Público</th><th class="py-2.5 pr-4">Funil</th>
+              <th class="py-2.5 pr-4 text-right">Investido</th><th class="py-2.5 pr-4 text-right">Impr.</th>
+              <th class="py-2.5 pr-4 text-right">Cliques</th><th class="py-2.5 pr-4 text-right">CTR</th>
+              <th class="py-2.5 pr-4 text-right">Leads</th><th class="py-2.5 pr-4 text-right">CPL</th>
+            </tr>
+          </thead>
+          <tbody id="aud-table"></tbody>
+        </table>
+      </div>
+    </section>
+
     <!-- TABELA DE CAMPANHAS -->
     <section class="card p-5 mb-10">
       <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
@@ -483,6 +507,30 @@ function renderCreatives(){
   document.getElementById('cre-count').textContent=`${list.length} ${list.length===1?'criativo':'criativos'}`;
 }
 
+function renderAudiences(){
+  const by={};
+  LOADED.forEach(k=>{ if(activeFunil!=='ALL'&&k!==activeFunil) return;
+    DATA[k].traf.forEach(r=>{ const name=r.adset||'(sem público)'; const key=name+'|'+k;
+      const e=by[key]||(by[key]={adset:name,funil:k,spend:0,impressions:0,clicks:0,lpv:0,leads:0});
+      e.spend+=r.spend;e.impressions+=r.impressions;e.clicks+=r.clicks;e.lpv+=r.lpv;e.leads+=r.leads;});
+  });
+  const list=Object.values(by).sort((a,b)=> b.leads-a.leads || b.spend-a.spend);
+  document.getElementById('aud-table').innerHTML = list.map(r=>{
+    const ctr=safe(r.clicks,r.impressions), cpl=safe(r.spend,r.leads), cor=FUNIL_COR[r.funil]||'#8DA2C0';
+    return `<tr class="table-row border-b" style="border-color:#142440">
+      <td class="py-3 pr-4 font-medium text-white/90 max-w-[300px] truncate" title="${r.adset}">${r.adset}</td>
+      <td class="py-3 pr-4"><span class="inline-flex items-center gap-1.5 text-xs"><span class="dot" style="background:${cor}"></span>${r.funil}</span></td>
+      <td class="py-3 pr-4 text-right font-bold text-white">${fmtBRL(r.spend)}</td>
+      <td class="py-3 pr-4 text-right" style="color:var(--muted)">${fmtInt(r.impressions)}</td>
+      <td class="py-3 pr-4 text-right" style="color:var(--muted)">${fmtInt(r.clicks)}</td>
+      <td class="py-3 pr-4 text-right" style="color:var(--muted)">${fmtPct(ctr)}</td>
+      <td class="py-3 pr-4 text-right ${r.leads>0?'text-sky-300 font-semibold':''}" ${r.leads>0?'':'style="color:var(--faint)"'}>${fmtInt(r.leads)}</td>
+      <td class="py-3 pr-4 text-right" style="color:var(--muted)">${r.leads?fmtBRL(cpl):'—'}</td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="8" class="py-8 text-center" style="color:var(--faint)">Sem públicos.</td></tr>`;
+  document.getElementById('aud-count').textContent=`${list.length} ${list.length===1?'público':'públicos'}`;
+}
+
 function renderTable(){
   const rows=trafOf(activeFunil); const funilDe = r => activeFunil!=='ALL'?activeFunil:(LOADED.find(k=>DATA[k].traf.includes(r))||'');
   const by={};
@@ -523,7 +571,7 @@ function chrome(){
   el.textContent = dates[0]===dates[dates.length-1]?f(dates[0]):`${f(dates[0])} – ${f(dates[dates.length-1])}`;
 }
 
-function renderAll(){ renderKPIs(); renderFunnel(); renderDaily(); renderCompare(); renderCreatives(); renderTable(); }
+function renderAll(){ renderKPIs(); renderFunnel(); renderDaily(); renderCompare(); renderCreatives(); renderAudiences(); renderTable(); }
 
 async function refresh(){
   const btn=document.getElementById('refresh-btn'),icon=document.getElementById('refresh-icon'),label=document.getElementById('refresh-label');
